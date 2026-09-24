@@ -1,0 +1,122 @@
+/* Animações para o Cabeçalho */
+@keyframes fadeInSlideUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animar-fade {
+  animation: fadeInSlideUp 0.3s ease-out forwards;
+}
+
+/* Cabeçalho da Página (Breadcrumbs + Título + Ações) */
+.cabecalho-pagina {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.cabecalho-pagina-conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Breadcrumbs (Trilha de Navegação) */
+.trilha-navegacao {
+  display: flex;
+  align-items: center;
+}
+
+.trilha-lista {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  list-style: none;
+  gap: 0.35rem;
+  padding: 0;
+  margin: 0;
+}
+
+.trilha-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.trilha-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.trilha-link:hover {
+  color: var(--primary);
+  background-color: #eff6ff; /* Fundo azul bem suave, estilo financeiro */
+}
+
+.trilha-separador {
+  color: #cbd5e1; /* Cor neutra suave */
+  flex-shrink: 0;
+}
+
+.trilha-ativo {
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 0.2rem 0.4rem;
+}
+
+/* Títulos */
+.cabecalho-pagina-titulos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.cabecalho-pagina-titulo {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.cabecalho-pagina-subtitulo {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* Slot de Ações */
+.cabecalho-pagina-acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  align-self: center;
+}
+
+/* Responsividade Mobile (< 768px) */
+@media (max-width: 767px) {
+  .cabecalho-pagina {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .cabecalho-pagina-titulo {
+    font-size: 1.35rem;
+  }
+
+  .cabecalho-pagina-acoes {
+    align-self: stretch;
+  }
+}
