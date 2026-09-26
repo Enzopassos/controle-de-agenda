@@ -1,18 +1,21 @@
 import { useState } from 'react';
+import { Palmtree } from 'lucide-react';
 import { obterDiasDoMes, formatarData, nomesDosMeses, diasDaSemana } from '../utils/dataUtils';
 import { useEventos } from '../hooks/useEventos';
 import { ModalDeEvento } from './ModalDeEvento';
+import { ModalDeFerias } from './ModalDeFerias';
 import { CabecalhoPagina } from './CabecalhoPagina';
 
 export const Calendario = () => {
   const [dataAtual, setDataAtual] = useState(new Date());
   const [diaSelecionado, setDiaSelecionado] = useState(null);
   
-  // Estados para o Modal de Meses
+  // Estados para os Modais
   const [modalMesesAberto, setModalMesesAberto] = useState(false);
+  const [modalFeriasAberto, setModalFeriasAberto] = useState(false);
   const [anoSelecionadoModal, setAnoSelecionadoModal] = useState(new Date().getFullYear());
 
-  const { eventos, adicionarEvento, removerEvento } = useEventos();
+  const { eventos, adicionarEvento, adicionarVariosEventos, removerEvento } = useEventos();
 
   const dataHoje = new Date();
   const ano = dataAtual.getFullYear();
@@ -60,6 +63,15 @@ export const Calendario = () => {
         trilha={[{ rotulo: 'Calendário' }]}
         acoes={
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <button
+              type="button"
+              className="btn-lancar-ferias"
+              onClick={() => setModalFeriasAberto(true)}
+              title="Lançar período de férias de um colaborador"
+            >
+              <Palmtree size={16} />
+              <span>Lançar Férias</span>
+            </button>
             {mostrarBotaoHoje && (
               <button className="btn-hoje" onClick={voltarParaHoje}>
                 Mês Atual
@@ -78,6 +90,7 @@ export const Calendario = () => {
 
         {dias.map((dia, index) => {
           const eventosDesteDia = dia ? obterEventosDoDia(dia) : [];
+          const folgasDesteDia = eventosDesteDia.filter(e => e.tipo === 'folga');
           // Verifica se o dia atual da iteração é um domingo (getDay() retorna 0 para domingo)
           const isDomingo = dia && dia.getDay() === 0;
           
@@ -87,9 +100,19 @@ export const Calendario = () => {
               className={`dia-celula ${!dia ? 'vazio' : ''} ${isDomingo ? 'domingo' : ''}`}
               onClick={() => lidarComCliqueNoDia(dia)}
             >
-              {dia && <span className="dia-numero">{dia.getDate()}</span>}
+              <div className="dia-celula-cabecalho">
+                {folgasDesteDia.length > 1 && (
+                  <span 
+                    className="badge-multi-folgas" 
+                    title={`${folgasDesteDia.length} colaboradores de folga neste dia`}
+                  >
+                    {folgasDesteDia.length} folgas
+                  </span>
+                )}
+                {dia && <span className="dia-numero">{dia.getDate()}</span>}
+              </div>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '8px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
                 {eventosDesteDia.map(evento => (
                   <div 
                     key={evento.id} 
@@ -129,6 +152,14 @@ export const Calendario = () => {
           data={diaSelecionado} 
           aoFechar={() => setDiaSelecionado(null)}
           aoSalvar={adicionarEvento}
+        />
+      )}
+
+      {/* Modal de Lançar Férias */}
+      {modalFeriasAberto && (
+        <ModalDeFerias 
+          aoFechar={() => setModalFeriasAberto(false)}
+          aoSalvar={adicionarVariosEventos}
         />
       )}
 

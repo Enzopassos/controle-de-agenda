@@ -1,0 +1,595 @@
+/* Estilos do Widget de Área de Trabalho - Tema Claro e Simples */
+
+.widget-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-gradient, linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%));
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.widget-container {
+  width: 100%;
+  max-width: 410px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  color: #1e293b;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+/* Barra Superior / Cabeçalho */
+.widget-cabecalho {
+  padding: 1rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+.widget-marca {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.widget-logo-container {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 8px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.widget-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.widget-icone-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.widget-titulos {
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-titulo-principal {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.widget-subtitulo-principal {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.widget-status-conexao {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.ponto-status-vivo {
+  width: 7px;
+  height: 7px;
+  background-color: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+  animation: pulsarStatus 2s infinite ease-in-out;
+}
+
+@keyframes pulsarStatus {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.widget-acoes-topo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-widget-acao {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-widget-acao:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+
+.btn-widget-acao:active {
+  transform: translateY(1px);
+}
+
+.btn-widget-acao.girando svg {
+  animation: animGirar 0.8s linear infinite;
+}
+
+@keyframes animGirar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Painel de Destaque Dinâmico do Dia Selecionado */
+.widget-painel-dia-destaque {
+  margin: 0.85rem 1rem 0.5rem 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.widget-painel-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.widget-data-selecionada-titulo {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-dia-hoje {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.btn-voltar-dia-hoje {
+  background: #e2e8f0;
+  border: none;
+  color: #475569;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-voltar-dia-hoje:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+.widget-tag-resumo {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.widget-tag-resumo.com-folgas {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.widget-tag-resumo.com-eventos {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.widget-tag-resumo.sem-registros {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+/* Lista de Acontecimentos do Dia Selecionado no Painel */
+.widget-acontecimentos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.widget-acontecimento-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+}
+
+.widget-acontecimento-item.folga {
+  background: #fee2e2;
+  border-left: 3px solid #ef4444;
+  color: #7f1d1d;
+}
+
+.widget-acontecimento-item.evento {
+  background: #e0f2fe;
+  border-left: 3px solid #3b82f6;
+  color: #0c4a6e;
+}
+
+.widget-acontecimento-nome {
+  font-weight: 600;
+}
+
+.widget-acontecimento-detalhe {
+  font-size: 0.72rem;
+  opacity: 0.9;
+}
+
+.widget-sem-acontecimentos {
+  font-size: 0.76rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+/* Abas de Navegação */
+.widget-abas {
+  display: flex;
+  padding: 0.3rem 1rem;
+  gap: 0.4rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.btn-aba-widget {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  padding: 0.5rem 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-aba-widget:hover {
+  color: #1e293b;
+  background: #f8fafc;
+}
+
+.btn-aba-widget.ativo {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+/* Área de Conteúdo */
+.widget-conteudo-aba {
+  padding: 0.75rem 1rem 1rem 1rem;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.widget-conteudo-aba::-webkit-scrollbar {
+  width: 4px;
+}
+.widget-conteudo-aba::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* Navegação do Mês no Mini Calendário */
+.widget-mes-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.65rem;
+}
+
+.widget-mes-titulo {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.widget-mes-botoes {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.btn-nav-mini {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-nav-mini:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.btn-hoje-mini {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #2563eb;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-hoje-mini:hover {
+  background: #dbeafe;
+}
+
+/* Grade do Mini Calendário */
+.widget-calendario-grade {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.widget-dia-semana {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #64748b;
+  padding-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.widget-dia-celula {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+  user-select: none;
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+.widget-dia-celula.vazio {
+  cursor: default;
+  opacity: 0;
+  pointer-events: none;
+  background: transparent;
+  border: none;
+}
+
+.widget-dia-celula:not(.vazio):hover {
+  border-color: #94a3b8;
+  transform: scale(1.02);
+}
+
+.widget-dia-celula.domingo {
+  color: #dc2626;
+}
+
+/* PINTADO EM VERMELHO QUANDO HÁ FOLGA */
+.widget-dia-celula.tem-folga {
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+  border-color: #fca5a5 !important;
+  font-weight: 700;
+}
+
+/* PINTADO EM AZUL QUANDO HÁ APENAS EVENTO */
+.widget-dia-celula.tem-evento:not(.tem-folga) {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+  font-weight: 600;
+}
+
+/* DIA ATUAL (HOJE) */
+.widget-dia-celula.hoje {
+  position: relative;
+  font-weight: 800;
+}
+
+.widget-dia-celula.hoje::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  width: 12px;
+  height: 2px;
+  background-color: #2563eb;
+  border-radius: 2px;
+}
+
+.widget-dia-celula.tem-folga.hoje::after {
+  background-color: #991b1b;
+}
+
+/* DIA SELECIONADO PELO USUÁRIO */
+.widget-dia-celula.selecionado {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  z-index: 2;
+}
+
+/* Indicador de 2 ou mais pessoas de folga no mesmo dia */
+.widget-indicador-multi-folgas {
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  background-color: #dc2626;
+  color: #ffffff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  border-radius: 999px;
+  min-width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  border: 1px solid #fee2e2;
+  z-index: 1;
+}
+
+/* Lista da Aba "Próximos Dias" */
+.widget-lista-proximos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.widget-item-proximo {
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  border: 1px solid transparent;
+}
+
+.widget-item-proximo.folga {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #7f1d1d;
+}
+
+.widget-item-proximo.evento {
+  background: #e0f2fe;
+  border-color: #bae6fd;
+  color: #0c4a6e;
+}
+
+.widget-proximo-data-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+  margin-bottom: 2px;
+}
+
+.widget-proximo-titulo {
+  font-weight: 700;
+}
+
+.widget-proximo-desc {
+  font-size: 0.72rem;
+  opacity: 0.85;
+}
+
+.widget-nenhum-registro {
+  font-size: 0.76rem;
+  color: #64748b;
+  text-align: center;
+  padding: 1.5rem 0;
+  font-style: italic;
+}
+
+/* Rodapé */
+.widget-rodape {
+  padding: 0.65rem 1rem;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.link-painel-web {
+  color: #2563eb;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.72rem;
+  transition: color 0.15s ease;
+}
+
+.link-painel-web:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}

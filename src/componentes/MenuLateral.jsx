@@ -6,15 +6,30 @@ import {
   Users,
   TrendingUp,
   Settings,
+  AppWindow,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  LogOut,
+  User
 } from 'lucide-react';
+import { useAutenticacao } from '../hooks/useAutenticacao';
+import logoAutoEscola from '../assets/LOGO_SJ.png';
 
 export const MenuLateral = () => {
   const [recolhidaDesktop, setRecolhidaDesktop] = useState(false);
   const [menuAbertoMobile, setMenuAbertoMobile] = useState(false);
+  const { usuario, sair } = useAutenticacao();
   const navigate = useNavigate();
+
+  const lidarComSair = async () => {
+    try {
+      await sair();
+      navigate('/login');
+    } catch (erro) {
+      console.error('Erro ao sair:', erro);
+    }
+  };
 
   const aoFecharMobile = () => setMenuAbertoMobile(false);
   const aoAlternarRecolhidaDesktop = () => setRecolhidaDesktop(!recolhidaDesktop);
@@ -27,6 +42,7 @@ export const MenuLateral = () => {
   const ITENS_GESTAO = [
     { caminho: '/colaboradores', rotulo: 'Colaboradores', icone: Users },
     { caminho: '/relatorios', rotulo: 'Relatórios', icone: TrendingUp },
+    { caminho: '/widget', rotulo: 'Widget Desktop', icone: AppWindow },
     { caminho: '/configuracoes', rotulo: 'Configurações', icone: Settings, emBreve: true },
   ];
 
@@ -81,20 +97,20 @@ export const MenuLateral = () => {
       <div className="menu-lateral-cabecalho">
         <div
           className="menu-lateral-marca"
-          title="AntiGravity ERP"
+          title="Agenda Auto Escola São João"
           onClick={() => {
             navigate('/dashboard');
             aoFecharMobile();
           }}
           style={{ cursor: 'pointer' }}
         >
-          <div className="menu-lateral-logo-icone">
-            <LayoutDashboard size={24} />
+          <div className="menu-lateral-logo-container">
+            <img src={logoAutoEscola} alt="Auto Escola São João" className="menu-lateral-logo-img" />
           </div>
           {!recolhidaDesktop && (
             <div className="menu-lateral-marca-texto">
-              <span className="menu-lateral-titulo">AntiGravity</span>
-              <span className="menu-lateral-subtitulo">ERP System</span>
+              <span className="menu-lateral-titulo">Auto Escola São João</span>
+              <span className="menu-lateral-subtitulo">Controle de Agenda</span>
             </div>
           )}
         </div>
@@ -126,6 +142,33 @@ export const MenuLateral = () => {
       </nav>
 
       <div className="menu-lateral-rodape">
+        {usuario && (
+          <div className="menu-lateral-usuario-box">
+            <div className="menu-lateral-usuario-info" title={usuario.email}>
+              <div className="menu-lateral-usuario-avatar">
+                <User size={15} />
+              </div>
+              {!recolhidaDesktop && (
+                <div className="menu-lateral-usuario-textos">
+                  <span className="menu-lateral-usuario-rotulo">Conectado</span>
+                  <span className="menu-lateral-usuario-email">{usuario.email}</span>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              className="menu-lateral-btn-sair"
+              onClick={lidarComSair}
+              title="Sair do sistema"
+              aria-label="Sair do sistema"
+            >
+              <LogOut size={16} />
+              {!recolhidaDesktop && <span>Sair</span>}
+            </button>
+          </div>
+        )}
+
         <button
           type="button"
           className="menu-lateral-btn-recolher"

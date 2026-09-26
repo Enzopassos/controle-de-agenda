@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { eventoServico } from '../servicos/eventoServico';
+import { supabase } from '../servicos/supabaseClient';
 
 const CACHE_KEY = 'agenda_eventos_cache';
 
@@ -31,6 +32,22 @@ export const useEventos = () => {
 
   useEffect(() => {
     carregarEventos();
+
+    // Sincronização em tempo real (Supabase Realtime)
+    const canal = supabase
+      .channel('agenda_eventos_alteracoes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'agenda_eventos' },
+        () => {
+          carregarEventos();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(canal);
+    };
   }, [carregarEventos]);
 
   const adicionarEvento = async (dadosDoEvento) => {
@@ -39,6 +56,17 @@ export const useEventos = () => {
       await carregarEventos(); 
     } catch (erro) {
       console.error('Erro ao adicionar evento', erro);
+      throw erro;
+    }
+  };
+
+  const adicionarVariosEventos = async (listaDeEventos) => {
+    try {
+      await eventoServico.criarVarios(listaDeEventos);
+      await carregarEventos();
+    } catch (erro) {
+      console.error('Erro ao adicionar múltiplos eventos', erro);
+      throw erro;
     }
   };
 
@@ -48,6 +76,7 @@ export const useEventos = () => {
       await carregarEventos();
     } catch (erro) {
       console.error('Erro ao remover evento', erro);
+      throw erro;
     }
   };
 
@@ -55,6 +84,8 @@ export const useEventos = () => {
     eventos,
     carregando,
     adicionarEvento,
-    removerEvento
+    adicionarVariosEventos,
+    removerEvento,
+    recarregarEventos: carregarEventos
   };
 };

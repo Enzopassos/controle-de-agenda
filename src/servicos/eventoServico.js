@@ -25,6 +25,18 @@ export const eventoServico = {
     return data;
   },
 
+  criarVarios: async (listaDeEventos) => {
+    if (!listaDeEventos || listaDeEventos.length === 0) return [];
+    const { data, error } = await supabase
+      .from('agenda_eventos')
+      .insert(listaDeEventos)
+      .select();
+    
+    if (error) throw error;
+    return data;
+  },
+
+
   remover: async (id) => {
     const { error } = await supabase
       .from('agenda_eventos')
