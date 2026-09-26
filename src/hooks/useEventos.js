@@ -33,9 +33,10 @@ export const useEventos = () => {
   useEffect(() => {
     carregarEventos();
 
-    // Sincronização em tempo real (Supabase Realtime)
+    // Sincronização em tempo real (Supabase Realtime) com canal único por instância
+    const idCanal = `agenda_eventos_${Math.random().toString(36).slice(2, 9)}`;
     const canal = supabase
-      .channel('agenda_eventos_alteracoes')
+      .channel(idCanal)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'agenda_eventos' },

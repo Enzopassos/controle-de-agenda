@@ -5,8 +5,16 @@ const CACHE_KEY = 'agenda_colaboradores_cache';
 
 export const useColaboradores = () => {
   const [colaboradores, setColaboradores] = useState(() => {
-    const cache = localStorage.getItem(CACHE_KEY);
-    return cache ? JSON.parse(cache) : [];
+    try {
+      const cache = localStorage.getItem(CACHE_KEY);
+      if (cache) {
+        const parsed = JSON.parse(cache);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {
+      // Ignora erro de parse
+    }
+    return [];
   });
   
   const [carregando, setCarregando] = useState(() => {
@@ -20,8 +28,9 @@ export const useColaboradores = () => {
     
     try {
       const dados = await colaboradorServico.obterTodos();
-      setColaboradores(dados);
-      localStorage.setItem(CACHE_KEY, JSON.stringify(dados));
+      const listaSegura = Array.isArray(dados) ? dados : [];
+      setColaboradores(listaSegura);
+      localStorage.setItem(CACHE_KEY, JSON.stringify(listaSegura));
     } catch (erro) {
       console.error('Erro ao carregar colaboradores', erro);
     } finally {
@@ -51,5 +60,5 @@ export const useColaboradores = () => {
     }
   };
 
-  return { colaboradores, carregando, adicionar, remover };
+  return { colaboradores: colaboradores || [], carregando, adicionar, remover };
 };

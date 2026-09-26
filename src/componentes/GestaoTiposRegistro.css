@@ -1,0 +1,292 @@
+.gestao-tipos-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.gestao-tipos-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .gestao-tipos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.painel-formulario-tipo {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+  position: sticky;
+  top: 1.5rem;
+}
+
+.painel-formulario-titulo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.painel-formulario-subtitulo {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.25rem;
+}
+
+.seletor-cor-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.seletor-cor-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.input-cor-nativo {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 2px;
+  background: white;
+  flex-shrink: 0;
+}
+
+.input-cor-hex-texto {
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.paleta-cores-sugeridas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+}
+
+.btn-paleta-cor {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 1px #cbd5e1;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  padding: 0;
+}
+
+.btn-paleta-cor:hover {
+  transform: scale(1.15);
+}
+
+.btn-paleta-cor.selecionada {
+  box-shadow: 0 0 0 2px #0f172a;
+  transform: scale(1.15);
+}
+
+.opcoes-checkbox-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 1.25rem 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.checkbox-item-personalizado {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  cursor: pointer;
+}
+
+.checkbox-item-personalizado input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin-top: 2px;
+  accent-color: var(--primary);
+}
+
+.checkbox-item-textos {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkbox-titulo {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.checkbox-descricao {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.caixa-previa-tipo {
+  margin: 1rem 0;
+  padding: 0.85rem;
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.caixa-previa-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.lista-tipos-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.card-tipo-item {
+  background: white;
+  border-radius: 14px;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-tipo-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.card-tipo-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.card-tipo-barra-cor {
+  width: 14px;
+  height: 48px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.card-tipo-dados {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.card-tipo-nome {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-tipo-chave {
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.card-tipo-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag-recurso-tipo {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.tag-recurso-tipo.colaborador {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.tag-recurso-tipo.geral {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.tag-recurso-tipo.ausencia {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.card-tipo-acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-acao-tipo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-acao-tipo.editar {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.btn-acao-tipo.editar:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.btn-acao-tipo.excluir {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.btn-acao-tipo.excluir:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}

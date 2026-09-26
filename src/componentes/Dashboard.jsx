@@ -1,11 +1,23 @@
 import { useEventos } from '../hooks/useEventos';
 import { useColaboradores } from '../hooks/useColaboradores';
+import { useTiposRegistro } from '../hooks/useTiposRegistro';
 import { formatarData } from '../utils/dataUtils';
+import { hexParaRgba } from '../utils/corUtils';
 import { CabecalhoPagina } from './CabecalhoPagina';
+
+const ehEventoFerias = (evento) => {
+  if (!evento) return false;
+  return (
+    evento.tipo === 'ferias' ||
+    (Boolean(evento.titulo) &&
+      (evento.titulo.toLowerCase().includes('férias') || evento.titulo.toLowerCase().includes('ferias')))
+  );
+};
 
 export const Dashboard = () => {
   const { eventos, carregando: carregandoEventos } = useEventos();
   const { colaboradores, carregando: carregandoColab } = useColaboradores();
+  const { obterTipoPorChave } = useTiposRegistro();
 
   const dataHoje = new Date();
   const hojeStr = formatarData(dataHoje);
@@ -21,17 +33,24 @@ export const Dashboard = () => {
     return e.data > hojeStr && e.data <= daqui15DiasStr;
   }).sort((a, b) => a.data.localeCompare(b.data));
 
+  const verificarSeComputaAusencia = (e) => {
+    if (ehEventoFerias(e)) return true;
+    const info = obterTipoPorChave(e.tipo);
+    if (info) return Boolean(info.computa_ausencia);
+    return e.tipo === 'folga';
+  };
+
   const folgasEsteMes = eventos.filter(e => {
     const anoEvento = e.data.substring(0, 4);
     const mesEvento = e.data.substring(5, 7);
     const anoAtual = String(dataHoje.getFullYear());
     const mesAtual = String(dataHoje.getMonth() + 1).padStart(2, '0');
-    return e.tipo === 'folga' && anoEvento === anoAtual && mesEvento === mesAtual;
+    return verificarSeComputaAusencia(e) && anoEvento === anoAtual && mesEvento === mesAtual;
   }).length;
 
   const rankingFolgas = colaboradores.map(colaborador => {
     const totalFolgas = eventos.filter(e => 
-      e.tipo === 'folga' && 
+      verificarSeComputaAusencia(e) && 
       e.colaborador_id === colaborador.id &&
       e.data.startsWith(anoAtualStr)
     ).length;
@@ -48,19 +67,39 @@ export const Dashboard = () => {
     return (
       <div className="lista-eventos-dashboard">
         {lista.map(evento => {
-          const isFolga = evento.tipo === 'folga';
+          const isFerias = ehEventoFerias(evento);
+          const tipoInfo = obterTipoPorChave(evento.tipo);
+          const temColaborador = Boolean(evento.colaborador?.nome);
+          const classeTipo = isFerias ? 'ferias' : (tipoInfo?.chave || evento.tipo);
           const partesData = evento.data.split('-');
           const dataBR = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
 
+          const estiloCustomizado = tipoInfo?.cor_hex ? {
+            borderLeft: `4px solid ${tipoInfo.cor_hex}`,
+            backgroundColor: hexParaRgba(tipoInfo.cor_hex, 0.08)
+          } : undefined;
+
           return (
-            <div key={evento.id} className={`item-evento-dashboard ${evento.tipo}`}>
+            <div
+              key={evento.id}
+              className={`item-evento-dashboard ${classeTipo}`}
+              style={estiloCustomizado}
+            >
               <div className="data">{dataBR}</div>
               <div className="info">
                 <div className="titulo">
-                  {isFolga ? evento.colaborador?.nome || 'Desconhecido' : evento.titulo}
+                  {isFerias
+                    ? `${evento.colaborador?.nome || 'Desconhecido'} (Férias)`
+                    : temColaborador
+                    ? evento.colaborador?.nome
+                    : evento.titulo}
                 </div>
                 <div className="subtitulo">
-                  {isFolga ? `Motivo: ${evento.titulo}` : 'Evento Corporativo'}
+                  {isFerias
+                    ? `Férias: ${evento.titulo}`
+                    : temColaborador
+                    ? `${tipoInfo?.nome ? `[${tipoInfo.nome}] ` : ''}${evento.titulo}`
+                    : (tipoInfo?.nome || 'Evento Geral')}
                 </div>
               </div>
             </div>
@@ -90,16 +129,37 @@ export const Dashboard = () => {
               <p style={{ color: '#cbd5e1', margin: '0.5rem 0 0 0', fontSize: '0.95rem' }}>Equipe completa. Nenhum evento ou folga agendada para hoje.</p>
             ) : (
               <div className="banner-lista">
-                {eventosDeHoje.map(evento => (
-                  <div key={evento.id} className={`banner-item ${evento.tipo}`}>
-                    <div className="nome">
-                      {evento.tipo === 'folga' ? evento.colaborador?.nome : evento.titulo}
+                {eventosDeHoje.map(evento => {
+                  const tipoInfo = obterTipoPorChave(evento.tipo);
+                  const isFerias = ehEventoFerias(evento);
+                  const temColaborador = Boolean(evento.colaborador?.nome);
+                  const estiloBanner = tipoInfo?.cor_hex ? {
+                    borderLeft: `3px solid ${tipoInfo.cor_hex}`
+                  } : undefined;
+
+                  return (
+                    <div
+                      key={evento.id}
+                      className={`banner-item ${isFerias ? 'ferias' : (tipoInfo?.chave || evento.tipo)}`}
+                      style={estiloBanner}
+                    >
+                      <div className="nome">
+                        {isFerias
+                          ? `${evento.colaborador?.nome} (Férias)`
+                          : temColaborador
+                          ? evento.colaborador?.nome
+                          : evento.titulo}
+                      </div>
+                      <div className="motivo">
+                        {isFerias
+                          ? `Férias: ${evento.titulo}`
+                          : temColaborador
+                          ? `${tipoInfo?.nome ? `[${tipoInfo.nome}] ` : ''}${evento.titulo}`
+                          : (tipoInfo?.nome || 'Evento Geral')}
+                      </div>
                     </div>
-                    <div className="motivo">
-                      {evento.tipo === 'folga' ? `Motivo: ${evento.titulo}` : 'Evento Corporativo'}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

@@ -1,44 +1,68 @@
 /* Estilos do Widget de Área de Trabalho - Tema Claro e Simples */
 
+/* Transparência global para permitir que a janela flutuante seja apenas o card */
+body.modo-widget-ativo,
+body:has(.widget-wrapper) {
+  background: transparent !important;
+  background-color: transparent !important;
+  overflow: hidden !important;
+}
+
+body.modo-widget-ativo #root,
+body:has(.widget-wrapper) #root {
+  background: transparent !important;
+  background-color: transparent !important;
+  min-height: 100vh;
+}
+
 .widget-wrapper {
   min-height: 100vh;
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  background: var(--bg-gradient, linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%));
-  padding: 1rem;
+  background: transparent !important;
+  padding: 8px;
   box-sizing: border-box;
 }
 
 .widget-container {
   width: 100%;
-  max-width: 410px;
+  max-width: 404px;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #cbd5e1;
   border-radius: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
   color: #1e293b;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transition: all 0.2s ease;
+  user-select: none;
 }
 
-/* Barra Superior / Cabeçalho */
+/* Barra Superior / Cabeçalho com Arrastabilidade */
 .widget-cabecalho {
-  padding: 1rem 1.15rem;
+  padding: 0.85rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #f1f5f9;
   background: #ffffff;
+  cursor: grab;
+  user-select: none;
+  -webkit-app-region: drag;
+}
+
+.widget-cabecalho:active {
+  cursor: grabbing;
 }
 
 .widget-marca {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  pointer-events: none;
 }
 
 .widget-logo-container {
@@ -124,27 +148,35 @@
 .widget-acoes-topo {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
+  -webkit-app-region: no-drag;
 }
 
 .btn-widget-acao {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   color: #64748b;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.15s ease;
+  -webkit-app-region: no-drag;
 }
 
 .btn-widget-acao:hover {
   background: #f1f5f9;
   color: #1e293b;
   border-color: #cbd5e1;
+}
+
+.btn-widget-acao.btn-fechar-widget:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
 }
 
 .btn-widget-acao:active {
@@ -227,6 +259,12 @@
   border: 1px solid #fca5a5;
 }
 
+.widget-tag-resumo.com-ferias {
+  background: #ffedd5;
+  color: #9a3412;
+  border: 1px solid #fdba74;
+}
+
 .widget-tag-resumo.com-eventos {
   background: #e0f2fe;
   color: #0369a1;
@@ -259,6 +297,12 @@
   background: #fee2e2;
   border-left: 3px solid #ef4444;
   color: #7f1d1d;
+}
+
+.widget-acontecimento-item.ferias {
+  background: #ffedd5;
+  border-left: 3px solid #f97316;
+  color: #7c2d12;
 }
 
 .widget-acontecimento-item.evento {
@@ -450,8 +494,16 @@
   font-weight: 700;
 }
 
+/* PINTADO EM LARANJA QUANDO HÁ FÉRIAS */
+.widget-dia-celula.tem-ferias:not(.tem-folga) {
+  background-color: #ffedd5 !important;
+  color: #9a3412 !important;
+  border-color: #fed7aa !important;
+  font-weight: 700;
+}
+
 /* PINTADO EM AZUL QUANDO HÁ APENAS EVENTO */
-.widget-dia-celula.tem-evento:not(.tem-folga) {
+.widget-dia-celula.tem-evento:not(.tem-folga):not(.tem-ferias) {
   background-color: #e0f2fe !important;
   color: #0369a1 !important;
   border-color: #bae6fd !important;
@@ -528,6 +580,12 @@
   background: #fee2e2;
   border-color: #fca5a5;
   color: #7f1d1d;
+}
+
+.widget-item-proximo.ferias {
+  background: #ffedd5;
+  border-color: #fdba74;
+  color: #7c2d12;
 }
 
 .widget-item-proximo.evento {

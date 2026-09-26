@@ -1,23 +1,40 @@
 import { useState, useMemo } from 'react';
 import { useEventos } from '../hooks/useEventos';
 import { useColaboradores } from '../hooks/useColaboradores';
+import { useTiposRegistro } from '../hooks/useTiposRegistro';
+import { hexParaRgba } from '../utils/corUtils';
 import { CabecalhoPagina } from './CabecalhoPagina';
+
+const ehEventoFerias = (evento) => {
+  if (!evento) return false;
+  return (
+    evento.tipo === 'ferias' ||
+    (Boolean(evento.titulo) &&
+      (evento.titulo.toLowerCase().includes('férias') || evento.titulo.toLowerCase().includes('ferias')))
+  );
+};
 
 export const Relatorios = () => {
   const { eventos, carregando: carregandoEventos } = useEventos();
   const { colaboradores, carregando: carregandoColab } = useColaboradores();
+  const { obterTipoPorChave } = useTiposRegistro();
   
   const [filtroMes, setFiltroMes] = useState('todos');
   const [filtroColaborador, setFiltroColaborador] = useState('todos');
 
-  // Filtra do banco apenas o que for do tipo "folga"
-  const folgas = useMemo(() => {
-    return eventos.filter(e => e.tipo === 'folga');
-  }, [eventos]);
+  // Filtra do banco ausências de colaboradores (folgas, férias e novos tipos que computam ausência)
+  const ausencias = useMemo(() => {
+    return eventos.filter(e => {
+      if (ehEventoFerias(e)) return true;
+      const info = obterTipoPorChave(e.tipo);
+      if (info) return Boolean(info.computa_ausencia);
+      return e.tipo === 'folga';
+    });
+  }, [eventos, obterTipoPorChave]);
 
   // Aplica os filtros da tela
   const folgasFiltradas = useMemo(() => {
-    return folgas.filter(folga => {
+    return ausencias.filter(folga => {
       let passaMes = true;
       let passaColab = true;
 
@@ -32,14 +49,14 @@ export const Relatorios = () => {
 
       return passaMes && passaColab;
     }).sort((a, b) => b.data.localeCompare(a.data)); // Ordem cronológica decrescente
-  }, [folgas, filtroMes, filtroColaborador]);
+  }, [ausencias, filtroMes, filtroColaborador]);
 
   // Extrair lista de meses únicos disponíveis para o `<select>`
   const mesesDisponiveis = useMemo(() => {
     const meses = new Set();
-    folgas.forEach(f => meses.add(f.data.substring(0, 7)));
+    ausencias.forEach(f => meses.add(f.data.substring(0, 7)));
     return Array.from(meses).sort((a, b) => b.localeCompare(a));
-  }, [folgas]);
+  }, [ausencias]);
 
   return (
     <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
@@ -88,6 +105,7 @@ export const Relatorios = () => {
                 <tr>
                   <th>Data</th>
                   <th>Colaborador</th>
+                  <th>Tipo</th>
                   <th>Motivo / Observação</th>
                   <th>Status</th>
                 </tr>
@@ -95,6 +113,7 @@ export const Relatorios = () => {
               <tbody>
                 {folgasFiltradas.map(folga => {
                   const dataFormatada = folga.data.split('-').reverse().join('/');
+                  const isFerias = ehEventoFerias(folga);
                   
                   // Lógica para determinar se a folga já passou, é hoje ou no futuro
                   const hoje = new Date();
@@ -114,6 +133,30 @@ export const Relatorios = () => {
                         <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
                           {folga.colaborador?.nome || 'Desconhecido'}
                         </span>
+                      </td>
+                      <td>
+                        {(() => {
+                          const tipoInfo = obterTipoPorChave(folga.tipo);
+                          const rotuloTipo = isFerias ? 'Férias' : (tipoInfo?.nome || folga.tipo);
+                          const corTipo = tipoInfo?.cor_hex || (isFerias ? '#f97316' : '#ef4444');
+
+                          return (
+                            <span
+                              style={{
+                                fontSize: '0.72rem',
+                                fontWeight: 700,
+                                padding: '3px 9px',
+                                borderRadius: '999px',
+                                background: hexParaRgba(corTipo, 0.15),
+                                color: corTipo,
+                                border: `1px solid ${hexParaRgba(corTipo, 0.35)}`,
+                                display: 'inline-block',
+                              }}
+                            >
+                              {rotuloTipo}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td style={{ color: 'var(--text-secondary)' }}>{folga.titulo}</td>
                       <td>

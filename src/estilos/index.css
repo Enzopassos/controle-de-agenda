@@ -11,10 +11,13 @@
   --primary: #3b82f6;
   --primary-hover: #2563eb;
   --danger: #ef4444;
-  --folga-bg: #fecaca;
+  --folga-bg: #fee2e2;
   --folga-text: #991b1b;
   --evento-bg: #bfdbfe;
   --evento-text: #1e40af;
+  --ferias-bg: #ffedd5;
+  --ferias-text: #9a3412;
+  --ferias-border: #f97316;
 }
 
 * {
@@ -581,6 +584,12 @@ body {
   border-left: 4px solid #ef4444;
 }
 
+.evento-badge.ferias {
+  background: var(--ferias-bg);
+  color: var(--ferias-text);
+  border-left: 4px solid var(--ferias-border);
+}
+
 .evento-badge.evento {
   background: var(--evento-bg);
   color: var(--evento-text);
@@ -616,9 +625,9 @@ body {
 
 /* Botão Lançar Férias */
 .btn-lancar-ferias {
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
-  color: #dc2626;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #ea580c;
   font-size: 0.85rem;
   font-weight: 600;
   padding: 0.55rem 0.95rem;
@@ -628,15 +637,15 @@ body {
   align-items: center;
   gap: 0.45rem;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.1);
+  box-shadow: 0 1px 3px rgba(234, 88, 12, 0.12);
 }
 
 .btn-lancar-ferias:hover {
-  background: #fee2e2;
-  color: #b91c1c;
-  border-color: #f87171;
+  background: #ffedd5;
+  color: #c2410c;
+  border-color: #fb923c;
   transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.15);
+  box-shadow: 0 4px 10px rgba(234, 88, 12, 0.2);
 }
 
 .btn-lancar-ferias:active {
@@ -868,6 +877,14 @@ body {
   backdrop-filter: blur(4px);
 }
 
+.banner-item.folga {
+  border-left-color: #ef4444;
+}
+
+.banner-item.ferias {
+  border-left-color: #f97316;
+}
+
 .banner-item.evento {
   border-left-color: #3b82f6;
 }
@@ -969,7 +986,10 @@ body {
   border-left: 3px solid transparent; /* Preparando espaço para a cor */
 }
 .item-evento-dashboard.folga {
-  border-left-color: #f59e0b; /* Amarelo escuro/Laranja suave (menos alarmante que vermelho) */
+  border-left-color: #ef4444; /* Vermelho para folga */
+}
+.item-evento-dashboard.ferias {
+  border-left-color: #f97316; /* Laranja para férias */
 }
 .item-evento-dashboard.evento {
   border-left-color: #3b82f6; /* Azul */

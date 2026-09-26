@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   RotateCw as IconeRecarregar,
   ExternalLink as IconeLinkExterno,
@@ -7,9 +7,14 @@ import {
   CalendarDays,
   Clock,
   UserX,
-  CalendarCheck
+  CalendarCheck,
+  Minus,
+  X,
+  Palmtree
 } from 'lucide-react';
 import { useEventos } from '../hooks/useEventos';
+import { useTiposRegistro } from '../hooks/useTiposRegistro';
+import { hexParaRgba } from '../utils/corUtils';
 import {
   obterDiasDoMes,
   formatarData,
@@ -19,11 +24,34 @@ import {
 import logoAutoEscola from '../assets/LOGO_SJ.png';
 import './WidgetAgenda.css';
 
+const ehEventoFerias = (evento) => {
+  if (!evento) return false;
+  return (
+    evento.tipo === 'ferias' ||
+    (Boolean(evento.titulo) &&
+      (evento.titulo.toLowerCase().includes('férias') || evento.titulo.toLowerCase().includes('ferias')))
+  );
+};
+
+const ehAmbienteDesktop = typeof window !== 'undefined' && Boolean(
+  window.__TAURI_INTERNALS__ ||
+  window.__TAURI__ ||
+  new URLSearchParams(window.location.search).get('desktop') === 'true'
+);
+
 export const WidgetAgenda = () => {
   const { eventos, carregando, recarregarEventos } = useEventos();
+  const { obterTipoPorChave } = useTiposRegistro();
   const [estaAtualizandoManual, setEstaAtualizandoManual] = useState(false);
   const estaAtualizando = carregando || estaAtualizandoManual;
   const [abaAtiva, setAbaAtiva] = useState('mes'); // 'mes' ou 'proximos'
+
+  useEffect(() => {
+    document.body.classList.add('modo-widget-ativo');
+    return () => {
+      document.body.classList.remove('modo-widget-ativo');
+    };
+  }, []);
 
   const dataHoje = new Date();
   const hojeFormatado = formatarData(dataHoje);
@@ -64,7 +92,36 @@ export const WidgetAgenda = () => {
   };
 
   const abrirPainelWeb = () => {
-    window.open('/', '_blank');
+    const urlWeb = import.meta.env.VITE_PAINEL_WEB_URL || 'https://controle-de-agenda.vercel.app';
+    if (ehAmbienteDesktop) {
+      window.open(urlWeb, '_blank');
+    } else {
+      window.open('/dashboard', '_blank');
+    }
+  };
+
+  const lidarComMinimizar = async () => {
+    try {
+      if (ehAmbienteDesktop) {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window');
+        await getCurrentWindow().minimize();
+      }
+    } catch (erro) {
+      console.error('Erro ao minimizar widget:', erro);
+    }
+  };
+
+  const lidarComFechar = async () => {
+    try {
+      if (ehAmbienteDesktop) {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window');
+        await getCurrentWindow().close();
+      } else {
+        window.close();
+      }
+    } catch (erro) {
+      console.error('Erro ao fechar widget:', erro);
+    }
   };
 
   // Formatação de data amigável
@@ -89,13 +146,23 @@ export const WidgetAgenda = () => {
     (evento) => evento.data === diaSelecionadoFormatado
   );
 
-  const folgasDoDiaSelecionado = eventosDoDiaSelecionado.filter(
-    (evento) => evento.tipo === 'folga'
+  const feriasDoDiaSelecionado = eventosDoDiaSelecionado.filter(
+    (evento) => ehEventoFerias(evento)
   );
 
-  const outrosEventosDoDiaSelecionado = eventosDoDiaSelecionado.filter(
-    (evento) => evento.tipo !== 'folga'
-  );
+  const folgasDoDiaSelecionado = eventosDoDiaSelecionado.filter((evento) => {
+    if (ehEventoFerias(evento)) return false;
+    const info = obterTipoPorChave(evento.tipo);
+    if (info) return Boolean(info.computa_ausencia);
+    return evento.tipo === 'folga';
+  });
+
+  const outrosEventosDoDiaSelecionado = eventosDoDiaSelecionado.filter((evento) => {
+    if (ehEventoFerias(evento)) return false;
+    const info = obterTipoPorChave(evento.tipo);
+    if (info) return !info.computa_ausencia;
+    return evento.tipo !== 'folga';
+  });
 
   // Próximos eventos a partir de hoje
   const proximosEventos = eventos
@@ -106,15 +173,15 @@ export const WidgetAgenda = () => {
   return (
     <div className="widget-wrapper">
       <div className="widget-container">
-        {/* Barra Superior */}
-        <header className="widget-cabecalho">
-          <div className="widget-marca">
-            <div className="widget-logo-container">
-              <img src={logoAutoEscola} alt="Auto Escola São João" className="widget-logo-img" />
+        {/* Barra Superior / Header Arrastável (Drag Region) */}
+        <header className="widget-cabecalho" data-tauri-drag-region>
+          <div className="widget-marca" data-tauri-drag-region>
+            <div className="widget-logo-container" data-tauri-drag-region>
+              <img src={logoAutoEscola} alt="Auto Escola São João" className="widget-logo-img" data-tauri-drag-region />
             </div>
-            <div className="widget-titulos">
-              <span className="widget-titulo-principal">Auto Escola São João</span>
-              <span className="widget-subtitulo-principal">Agenda da Equipe</span>
+            <div className="widget-titulos" data-tauri-drag-region>
+              <span className="widget-titulo-principal" data-tauri-drag-region>Auto Escola São João</span>
+              <span className="widget-subtitulo-principal" data-tauri-drag-region>Agenda da Equipe</span>
             </div>
           </div>
 
@@ -125,16 +192,36 @@ export const WidgetAgenda = () => {
               onClick={lidarComRecarregar}
               title="Recarregar informações"
             >
-              <IconeRecarregar size={15} />
+              <IconeRecarregar size={14} />
             </button>
             <button
               type="button"
               className="btn-widget-acao"
               onClick={abrirPainelWeb}
-              title="Abrir painel administrativo completo"
+              title="Abrir painel administrativo completo no navegador"
             >
-              <IconeLinkExterno size={15} />
+              <IconeLinkExterno size={14} />
             </button>
+            {ehAmbienteDesktop && (
+              <>
+                <button
+                  type="button"
+                  className="btn-widget-acao"
+                  onClick={lidarComMinimizar}
+                  title="Minimizar janela flutuante"
+                >
+                  <Minus size={14} />
+                </button>
+                <button
+                  type="button"
+                  className="btn-widget-acao btn-fechar-widget"
+                  onClick={lidarComFechar}
+                  title="Fechar janela flutuante"
+                >
+                  <X size={14} />
+                </button>
+              </>
+            )}
           </div>
         </header>
 
@@ -161,6 +248,8 @@ export const WidgetAgenda = () => {
                 className={`widget-tag-resumo ${
                   folgasDoDiaSelecionado.length > 0
                     ? 'com-folgas'
+                    : feriasDoDiaSelecionado.length > 0
+                    ? 'com-ferias'
                     : outrosEventosDoDiaSelecionado.length > 0
                     ? 'com-eventos'
                     : 'sem-registros'
@@ -169,6 +258,10 @@ export const WidgetAgenda = () => {
                 {folgasDoDiaSelecionado.length > 0
                   ? `${folgasDoDiaSelecionado.length} ${
                       folgasDoDiaSelecionado.length === 1 ? 'folga' : 'folgas'
+                    }`
+                  : feriasDoDiaSelecionado.length > 0
+                  ? `${feriasDoDiaSelecionado.length} ${
+                      feriasDoDiaSelecionado.length === 1 ? 'férias' : 'férias'
                     }`
                   : outrosEventosDoDiaSelecionado.length > 0
                   ? `${outrosEventosDoDiaSelecionado.length} ${
@@ -192,25 +285,45 @@ export const WidgetAgenda = () => {
               </div>
             ) : (
               eventosDoDiaSelecionado.map((evento) => {
-                const isFolga = evento.tipo === 'folga';
+                const isFerias = ehEventoFerias(evento);
+                const tipoInfo = obterTipoPorChave(evento.tipo);
+                const temColaborador = Boolean(evento.colaborador?.nome);
+                const classeCss = isFerias ? 'ferias' : (tipoInfo?.chave || evento.tipo);
+
+                const estiloItem = tipoInfo?.cor_hex ? {
+                  borderLeft: `3px solid ${tipoInfo.cor_hex}`,
+                  backgroundColor: hexParaRgba(tipoInfo.cor_hex, 0.12),
+                  color: '#1e293b'
+                } : undefined;
+
                 return (
                   <div
                     key={evento.id}
-                    className={`widget-acontecimento-item ${evento.tipo}`}
+                    className={`widget-acontecimento-item ${classeCss}`}
+                    style={estiloItem}
                   >
                     <div>
                       <div className="widget-acontecimento-nome">
-                        {isFolga ? (
+                        {isFerias ? (
                           <>
-                            <UserX size={12} style={{ display: 'inline', marginRight: 4 }} />
-                            {evento.colaborador?.nome || 'Colaborador'} (Folga)
+                            <Palmtree size={12} style={{ display: 'inline', marginRight: 4, color: '#ea580c' }} />
+                            {evento.colaborador?.nome || 'Colaborador'} (Férias)
+                          </>
+                        ) : temColaborador ? (
+                          <>
+                            <UserX size={12} style={{ display: 'inline', marginRight: 4, color: tipoInfo?.cor_hex || '#ef4444' }} />
+                            {evento.colaborador?.nome} {tipoInfo && tipoInfo.chave !== 'folga' ? `(${tipoInfo.nome})` : '(Folga)'}
                           </>
                         ) : (
                           evento.titulo
                         )}
                       </div>
                       <div className="widget-acontecimento-detalhe">
-                        {isFolga ? `Motivo: ${evento.titulo}` : 'Compromisso da equipe'}
+                        {isFerias
+                          ? `Período: ${evento.titulo}`
+                          : temColaborador
+                          ? `Motivo: ${evento.titulo}`
+                          : (tipoInfo?.nome || 'Compromisso da equipe')}
                       </div>
                     </div>
                   </div>
@@ -292,9 +405,22 @@ export const WidgetAgenda = () => {
 
                   const diaIso = formatarData(dia);
                   const eventosDesteDia = eventos.filter((e) => e.data === diaIso);
-                  const folgasDesteDia = eventosDesteDia.filter((e) => e.tipo === 'folga');
-                  const temFolga = folgasDesteDia.length > 0;
-                  const temEvento = eventosDesteDia.some((e) => e.tipo !== 'folga');
+                  const feriasDesteDia = eventosDesteDia.filter((e) => ehEventoFerias(e));
+                  const ausenciasDesteDia = eventosDesteDia.filter((e) => {
+                    if (ehEventoFerias(e)) return false;
+                    const info = obterTipoPorChave(e.tipo);
+                    if (info) return Boolean(info.computa_ausencia);
+                    return e.tipo === 'folga';
+                  });
+                  const totalAusenciasDesteDia = ausenciasDesteDia.length + feriasDesteDia.length;
+                  const temFolga = ausenciasDesteDia.length > 0;
+                  const temFerias = feriasDesteDia.length > 0;
+                  const temEvento = eventosDesteDia.some((e) => {
+                    if (ehEventoFerias(e)) return false;
+                    const info = obterTipoPorChave(e.tipo);
+                    if (info) return !info.computa_ausencia;
+                    return e.tipo !== 'folga';
+                  });
                   const ehDiaAtual = diaIso === hojeFormatado;
                   const ehDiaSelecionado = diaIso === diaSelecionadoFormatado;
                   const ehDomingo = dia.getDay() === 0;
@@ -302,7 +428,7 @@ export const WidgetAgenda = () => {
                   return (
                     <div
                       key={diaIso}
-                      className={`widget-dia-celula ${temFolga ? 'tem-folga' : ''} ${
+                      className={`widget-dia-celula ${temFolga ? 'tem-folga' : temFerias ? 'tem-ferias' : ''} ${
                         temEvento ? 'tem-evento' : ''
                       } ${ehDiaAtual ? 'hoje' : ''} ${
                         ehDiaSelecionado ? 'selecionado' : ''
@@ -310,21 +436,25 @@ export const WidgetAgenda = () => {
                       onClick={() => setDiaSelecionado(dia)}
                       title={
                         temFolga
-                          ? `${dia.getDate()} - ${folgasDesteDia.length} ${
-                              folgasDesteDia.length === 1 ? 'pessoa de folga' : 'pessoas de folga'
+                          ? `${dia.getDate()} - ${ausenciasDesteDia.length} ${
+                              ausenciasDesteDia.length === 1 ? 'pessoa ausente/folga' : 'pessoas ausentes/folga'
+                            }`
+                          : temFerias
+                          ? `${dia.getDate()} - ${feriasDesteDia.length} ${
+                              feriasDesteDia.length === 1 ? 'pessoa de férias' : 'pessoas de férias'
                             }`
                           : temEvento
-                          ? `${dia.getDate()} - Dia com evento cadastrado`
+                          ? `${dia.getDate()} - Dia com evento agendado`
                           : `${dia.getDate()}`
                       }
                     >
                       <span>{dia.getDate()}</span>
-                      {folgasDesteDia.length > 1 && (
+                      {totalAusenciasDesteDia > 1 && (
                         <span
                           className="widget-indicador-multi-folgas"
-                          title={`${folgasDesteDia.length} pessoas de folga neste dia`}
+                          title={`${totalAusenciasDesteDia} pessoas ausentes (folgas/férias) neste dia`}
                         >
-                          {folgasDesteDia.length}
+                          {totalAusenciasDesteDia}
                         </span>
                       )}
                     </div>
@@ -341,13 +471,20 @@ export const WidgetAgenda = () => {
                 </div>
               ) : (
                 proximosEventos.map((evento) => {
-                  const isFolga = evento.tipo === 'folga';
+                  const isFerias = ehEventoFerias(evento);
+                  const tipoInfo = obterTipoPorChave(evento.tipo);
+                  const temColaborador = Boolean(evento.colaborador?.nome);
+                  const classeTipo = isFerias ? 'ferias' : (tipoInfo?.chave || evento.tipo);
                   const ehEventoHoje = evento.data === hojeFormatado;
+
+                  const estiloProximo = tipoInfo?.cor_hex ? {
+                    borderLeft: `3px solid ${tipoInfo.cor_hex}`
+                  } : undefined;
 
                   return (
                     <div
                       key={evento.id}
-                      className={`widget-item-proximo ${evento.tipo}`}
+                      className={`widget-item-proximo ${classeTipo}`}
                       onClick={() => {
                         const [ano, mes, dia] = evento.data.split('-').map(Number);
                         const dataEvento = new Date(ano, mes - 1, dia);
@@ -355,7 +492,7 @@ export const WidgetAgenda = () => {
                         setDataNavegacao(new Date(ano, mes - 1, 1));
                         setAbaAtiva('mes');
                       }}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: 'pointer', ...estiloProximo }}
                       title="Clique para ver este dia no calendário"
                     >
                       <div>
@@ -363,12 +500,26 @@ export const WidgetAgenda = () => {
                           {ehEventoHoje ? 'Hoje' : formatarDataSimples(evento.data)}
                         </div>
                         <div className="widget-proximo-titulo">
-                          {isFolga
-                            ? evento.colaborador?.nome || 'Colaborador'
-                            : evento.titulo}
+                          {isFerias ? (
+                            <>
+                              <Palmtree size={12} style={{ display: 'inline', marginRight: 4, color: '#ea580c' }} />
+                              {evento.colaborador?.nome || 'Colaborador'} (Férias)
+                            </>
+                          ) : temColaborador ? (
+                            <>
+                              <UserX size={12} style={{ display: 'inline', marginRight: 4, color: tipoInfo?.cor_hex || '#ef4444' }} />
+                              {evento.colaborador?.nome} {tipoInfo && tipoInfo.chave !== 'folga' ? `(${tipoInfo.nome})` : ''}
+                            </>
+                          ) : (
+                            evento.titulo
+                          )}
                         </div>
                         <div className="widget-proximo-desc">
-                          {isFolga ? `Folga: ${evento.titulo}` : 'Evento de equipe'}
+                          {isFerias
+                            ? `Férias: ${evento.titulo}`
+                            : temColaborador
+                            ? `Motivo: ${evento.titulo}`
+                            : (tipoInfo?.nome || 'Compromisso da equipe')}
                         </div>
                       </div>
                     </div>

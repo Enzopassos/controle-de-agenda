@@ -10,17 +10,22 @@
     "beforeBuildCommand": "npm run build"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "label": "main",
-        "title": "Auto Escola São João - Agenda",
+        "title": "Agenda - Auto Escola São João",
+        "url": "index.html?desktop=true",
         "width": 420,
         "height": 650,
-        "minWidth": 360,
-        "minHeight": 500,
-        "resizable": true,
+        "minWidth": 380,
+        "minHeight": 550,
+        "resizable": false,
         "fullscreen": false,
-        "center": true
+        "center": true,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false
       }
     ],
     "security": {

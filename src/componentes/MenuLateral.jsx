@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   CalendarDays,
   Users,
+  Tag,
   TrendingUp,
   Settings,
   AppWindow,
@@ -41,6 +42,7 @@ export const MenuLateral = () => {
 
   const ITENS_GESTAO = [
     { caminho: '/colaboradores', rotulo: 'Colaboradores', icone: Users },
+    { caminho: '/tipos', rotulo: 'Tipos de Registro', icone: Tag },
     { caminho: '/relatorios', rotulo: 'Relatórios', icone: TrendingUp },
     { caminho: '/widget', rotulo: 'Widget Desktop', icone: AppWindow },
     { caminho: '/configuracoes', rotulo: 'Configurações', icone: Settings, emBreve: true },

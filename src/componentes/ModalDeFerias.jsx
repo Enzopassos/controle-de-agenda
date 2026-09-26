@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Palmtree, Calendar, User, FileText, AlertCircle, RotateCw } from 'lucide-react';
 import { useColaboradores } from '../hooks/useColaboradores';
 import { formatarData } from '../utils/dataUtils';
@@ -61,7 +62,7 @@ export const ModalDeFerias = ({ aoFechar, aoSalvar }) => {
       listaDeEventos.push({
         data: formatarData(atual),
         titulo: tituloFinal,
-        tipo: 'folga',
+        tipo: 'ferias',
         colaborador_id: colaboradorId,
       });
       atual.setDate(atual.getDate() + 1);
@@ -79,8 +80,8 @@ export const ModalDeFerias = ({ aoFechar, aoSalvar }) => {
     }
   };
 
-  return (
-    <div className="modal-overlay" onClick={aoFechar}>
+  const conteudoModal = (
+    <div className="modal-overlay" onClick={aoFechar} style={{ zIndex: 9999 }}>
       <div className="modal-conteudo" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.4rem' }}>
           <div
@@ -88,12 +89,12 @@ export const ModalDeFerias = ({ aoFechar, aoSalvar }) => {
               width: '36px',
               height: '36px',
               borderRadius: '10px',
-              background: '#fef2f2',
-              color: '#ef4444',
+              background: '#fff7ed',
+              color: '#ea580c',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              border: '1px solid #fecaca',
+              border: '1px solid #fed7aa',
             }}
           >
             <Palmtree size={20} />
@@ -137,7 +138,7 @@ export const ModalDeFerias = ({ aoFechar, aoSalvar }) => {
               required
             >
               <option value="">Selecione o colaborador...</option>
-              {colaboradores.map((colaborador) => (
+              {(colaboradores || []).map((colaborador) => (
                 <option key={colaborador.id} value={colaborador.id}>
                   {colaborador.nome}
                 </option>
@@ -228,8 +229,8 @@ export const ModalDeFerias = ({ aoFechar, aoSalvar }) => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.4rem',
-                backgroundColor: '#ef4444',
-                borderColor: '#ef4444',
+                backgroundColor: '#ea580c',
+                borderColor: '#ea580c',
               }}
             >
               {salvando ? (
@@ -249,4 +250,10 @@ export const ModalDeFerias = ({ aoFechar, aoSalvar }) => {
       </div>
     </div>
   );
+
+  if (typeof document !== 'undefined' && document.body) {
+    return createPortal(conteudoModal, document.body);
+  }
+
+  return conteudoModal;
 };

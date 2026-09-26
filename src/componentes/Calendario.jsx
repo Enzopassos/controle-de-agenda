@@ -2,9 +2,22 @@ import { useState } from 'react';
 import { Palmtree } from 'lucide-react';
 import { obterDiasDoMes, formatarData, nomesDosMeses, diasDaSemana } from '../utils/dataUtils';
 import { useEventos } from '../hooks/useEventos';
+import { useTiposRegistro } from '../hooks/useTiposRegistro';
+import { obterEstiloBadge } from '../utils/corUtils';
 import { ModalDeEvento } from './ModalDeEvento';
 import { ModalDeFerias } from './ModalDeFerias';
+import { ModalConfirmacaoExclusao } from './ModalConfirmacaoExclusao';
 import { CabecalhoPagina } from './CabecalhoPagina';
+import { ErrorBoundary } from './ErrorBoundary';
+
+const ehEventoFerias = (evento) => {
+  if (!evento) return false;
+  return (
+    evento.tipo === 'ferias' ||
+    (Boolean(evento.titulo) &&
+      (evento.titulo.toLowerCase().includes('férias') || evento.titulo.toLowerCase().includes('ferias')))
+  );
+};
 
 export const Calendario = () => {
   const [dataAtual, setDataAtual] = useState(new Date());
@@ -14,8 +27,10 @@ export const Calendario = () => {
   const [modalMesesAberto, setModalMesesAberto] = useState(false);
   const [modalFeriasAberto, setModalFeriasAberto] = useState(false);
   const [anoSelecionadoModal, setAnoSelecionadoModal] = useState(new Date().getFullYear());
+  const [eventoParaExcluir, setEventoParaExcluir] = useState(null);
 
   const { eventos, adicionarEvento, adicionarVariosEventos, removerEvento } = useEventos();
+  const { obterTipoPorChave } = useTiposRegistro();
 
   const dataHoje = new Date();
   const ano = dataAtual.getFullYear();
@@ -42,6 +57,17 @@ export const Calendario = () => {
   const selecionarMesNoModal = (indiceMes) => {
     setDataAtual(new Date(anoSelecionadoModal, indiceMes, 1));
     setModalMesesAberto(false);
+  };
+
+  const lidarComConfirmacaoExclusaoEvento = async () => {
+    if (!eventoParaExcluir) return;
+    try {
+      await removerEvento(eventoParaExcluir.id);
+    } catch (erro) {
+      console.error('Erro ao remover agendamento do calendário:', erro);
+    } finally {
+      setEventoParaExcluir(null);
+    }
   };
 
   return (
@@ -90,7 +116,14 @@ export const Calendario = () => {
 
         {dias.map((dia, index) => {
           const eventosDesteDia = dia ? obterEventosDoDia(dia) : [];
-          const folgasDesteDia = eventosDesteDia.filter(e => e.tipo === 'folga');
+          const feriasDesteDia = eventosDesteDia.filter(e => ehEventoFerias(e));
+          const ausenciasDesteDia = eventosDesteDia.filter(e => {
+            if (ehEventoFerias(e)) return false; // Já contado nas férias
+            const infoTipo = obterTipoPorChave(e.tipo);
+            if (infoTipo) return Boolean(infoTipo.computa_ausencia);
+            return e.tipo === 'folga';
+          });
+          const totalAusenciasDesteDia = ausenciasDesteDia.length + feriasDesteDia.length;
           // Verifica se o dia atual da iteração é um domingo (getDay() retorna 0 para domingo)
           const isDomingo = dia && dia.getDay() === 0;
           
@@ -101,45 +134,68 @@ export const Calendario = () => {
               onClick={() => lidarComCliqueNoDia(dia)}
             >
               <div className="dia-celula-cabecalho">
-                {folgasDesteDia.length > 1 && (
+                {totalAusenciasDesteDia > 1 && (
                   <span 
                     className="badge-multi-folgas" 
-                    title={`${folgasDesteDia.length} colaboradores de folga neste dia`}
+                    title={`${totalAusenciasDesteDia} colaboradores ausentes (folga/férias/afastamento) neste dia`}
                   >
-                    {folgasDesteDia.length} folgas
+                    {totalAusenciasDesteDia} ausências
                   </span>
                 )}
                 {dia && <span className="dia-numero">{dia.getDate()}</span>}
               </div>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
-                {eventosDesteDia.map(evento => (
-                  <div 
-                    key={evento.id} 
-                    className={`evento-badge ${evento.tipo}`}
-                    title={evento.titulo}
-                  >
-                    {evento.tipo === 'folga' ? (
-                      <>
-                        <span style={{ fontWeight: '700' }}>{evento.colaborador?.nome || 'Desconhecido'}</span>
-                        <span style={{ fontSize: '0.7rem', opacity: 0.9 }}>{evento.titulo}</span>
-                      </>
-                    ) : (
-                      <span style={{ fontWeight: '600' }}>{evento.titulo}</span>
-                    )}
-                    
-                    <button 
-                      className="btn-remover-evento" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removerEvento(evento.id);
-                      }}
-                      title="Remover"
+                {eventosDesteDia.map(evento => {
+                  const isFerias = ehEventoFerias(evento);
+                  const tipoInfo = obterTipoPorChave(evento.tipo);
+                  const temColaborador = Boolean(evento.colaborador?.nome);
+                  const estiloBadge = tipoInfo?.cor_hex ? obterEstiloBadge(tipoInfo.cor_hex) : undefined;
+                  const classeTipo = isFerias ? 'ferias' : (tipoInfo?.chave || evento.tipo);
+
+                  return (
+                    <div 
+                      key={evento.id} 
+                      className={`evento-badge ${classeTipo}`}
+                      style={estiloBadge}
+                      title={`${tipoInfo?.nome || evento.tipo}: ${evento.titulo}`}
                     >
-                      &times;
-                    </button>
-                  </div>
-                ))}
+                      {isFerias ? (
+                        <>
+                          <span style={{ fontWeight: '700' }}>
+                            {evento.colaborador?.nome || 'Colaborador'} (Férias)
+                          </span>
+                          <span style={{ fontSize: '0.7rem', opacity: 0.9 }}>{evento.titulo}</span>
+                        </>
+                      ) : temColaborador ? (
+                        <>
+                          <span style={{ fontWeight: '700' }}>{evento.colaborador?.nome}</span>
+                          <span style={{ fontSize: '0.7rem', opacity: 0.9 }}>
+                            {tipoInfo && tipoInfo.chave !== 'folga' ? `[${tipoInfo.nome}] ` : ''}{evento.titulo}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span style={{ fontWeight: '700' }}>{evento.titulo}</span>
+                          {tipoInfo && tipoInfo.chave !== 'evento' && (
+                            <span style={{ fontSize: '0.7rem', opacity: 0.9 }}>{tipoInfo.nome}</span>
+                          )}
+                        </>
+                      )}
+                      
+                      <button 
+                        className="btn-remover-evento" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEventoParaExcluir(evento);
+                        }}
+                        title="Remover agendamento"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
@@ -148,19 +204,23 @@ export const Calendario = () => {
 
       {/* Modal de Agendamento (Ao clicar no dia) */}
       {diaSelecionado && (
-        <ModalDeEvento 
-          data={diaSelecionado} 
-          aoFechar={() => setDiaSelecionado(null)}
-          aoSalvar={adicionarEvento}
-        />
+        <ErrorBoundary key={diaSelecionado instanceof Date ? diaSelecionado.getTime() : 'modal-evento'} aoResetar={() => setDiaSelecionado(null)}>
+          <ModalDeEvento 
+            data={diaSelecionado} 
+            aoFechar={() => setDiaSelecionado(null)}
+            aoSalvar={adicionarEvento}
+          />
+        </ErrorBoundary>
       )}
 
       {/* Modal de Lançar Férias */}
       {modalFeriasAberto && (
-        <ModalDeFerias 
-          aoFechar={() => setModalFeriasAberto(false)}
-          aoSalvar={adicionarVariosEventos}
-        />
+        <ErrorBoundary aoResetar={() => setModalFeriasAberto(false)}>
+          <ModalDeFerias 
+            aoFechar={() => setModalFeriasAberto(false)}
+            aoSalvar={adicionarVariosEventos}
+          />
+        </ErrorBoundary>
       )}
 
       {/* Modal de Seleção Rápida de Mês/Ano (Ao clicar no título) */}
@@ -190,6 +250,21 @@ export const Calendario = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de Confirmação de Exclusão de Evento */}
+      {eventoParaExcluir && (
+        <ModalConfirmacaoExclusao
+          titulo="Excluir Agendamento?"
+          mensagem="Tem certeza que deseja remover o agendamento"
+          nomeItem={
+            eventoParaExcluir.colaborador?.nome
+              ? `${eventoParaExcluir.titulo} (${eventoParaExcluir.colaborador.nome})`
+              : eventoParaExcluir.titulo
+          }
+          aoConfirmar={lidarComConfirmacaoExclusaoEvento}
+          aoCancelar={() => setEventoParaExcluir(null)}
+        />
       )}
     </div>
   );
