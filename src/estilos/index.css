@@ -522,6 +522,37 @@ body {
   background-color: #e2e8f0;
 }
 
+/* Destaque sutil na célula do dia para férias e folgas (férias priorizadas) */
+.dia-celula.tem-ferias {
+  background-color: #fffaf5;
+  border-color: #fed7aa;
+}
+
+.dia-celula.tem-ferias .dia-numero {
+  background: #ffedd5;
+  color: #9a3412;
+  font-weight: 700;
+}
+
+.dia-celula.tem-folga:not(.tem-ferias) {
+  background-color: #fffcfc;
+  border-color: #fecaca;
+}
+
+.dia-celula.tem-folga:not(.tem-ferias) .dia-numero {
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 700;
+}
+
+.dia-celula.tem-ferias:hover {
+  border-color: #f97316;
+}
+
+.dia-celula.tem-folga:not(.tem-ferias):hover {
+  border-color: #ef4444;
+}
+
 .dia-celula-cabecalho {
   display: flex;
   align-items: center;
@@ -543,6 +574,14 @@ body {
   align-items: center;
   gap: 3px;
   box-shadow: 0 1px 2px rgba(239, 68, 68, 0.12);
+}
+
+/* Badge de múltiplas ausências priorizando a cor de férias */
+.badge-multi-folgas.com-ferias {
+  background: var(--ferias-bg, #ffedd5);
+  color: var(--ferias-text, #9a3412);
+  border-color: var(--ferias-border, #f97316);
+  box-shadow: 0 1px 3px rgba(249, 115, 22, 0.2);
 }
 
 .dia-numero {
@@ -1072,6 +1111,32 @@ body {
 /* ------------------------
    Estilos de Relatórios
 ------------------------ */
+.tabela-relatorio-scroll {
+  max-height: calc(100vh - 350px);
+  min-height: 280px;
+  overflow-y: auto;
+  overflow-x: auto;
+  position: relative;
+}
+
+.tabela-relatorio-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.tabela-relatorio-scroll::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.tabela-relatorio-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
+}
+
+.tabela-relatorio-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 .tabela-relatorio {
   width: 100%;
   border-collapse: collapse;
@@ -1087,6 +1152,10 @@ body {
   letter-spacing: 0.5px;
   color: var(--text-secondary);
   border-bottom: 2px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 1px 0 #e2e8f0;
 }
 
 .tabela-relatorio td {

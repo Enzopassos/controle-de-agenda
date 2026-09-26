@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   RotateCw as IconeRecarregar,
-  ExternalLink as IconeLinkExterno,
   ChevronLeft,
   ChevronRight,
   CalendarDays,
@@ -91,15 +90,6 @@ export const WidgetAgenda = () => {
     }
   };
 
-  const abrirPainelWeb = () => {
-    const urlWeb = import.meta.env.VITE_PAINEL_WEB_URL || 'https://controle-de-agenda.vercel.app';
-    if (ehAmbienteDesktop) {
-      window.open(urlWeb, '_blank');
-    } else {
-      window.open('/dashboard', '_blank');
-    }
-  };
-
   const lidarComMinimizar = async () => {
     try {
       if (ehAmbienteDesktop) {
@@ -142,9 +132,16 @@ export const WidgetAgenda = () => {
   const diaSelecionadoFormatado = formatarData(diaSelecionado);
   const ehHoje = diaSelecionadoFormatado === hojeFormatado;
 
-  const eventosDoDiaSelecionado = eventos.filter(
-    (evento) => evento.data === diaSelecionadoFormatado
-  );
+  // Ordena os eventos do dia priorizando férias no topo da lista
+  const eventosDoDiaSelecionado = eventos
+    .filter((evento) => evento.data === diaSelecionadoFormatado)
+    .sort((a, b) => {
+      const ehFeriasA = ehEventoFerias(a);
+      const ehFeriasB = ehEventoFerias(b);
+      if (ehFeriasA && !ehFeriasB) return -1;
+      if (!ehFeriasA && ehFeriasB) return 1;
+      return 0;
+    });
 
   const feriasDoDiaSelecionado = eventosDoDiaSelecionado.filter(
     (evento) => ehEventoFerias(evento)
@@ -194,14 +191,6 @@ export const WidgetAgenda = () => {
             >
               <IconeRecarregar size={14} />
             </button>
-            <button
-              type="button"
-              className="btn-widget-acao"
-              onClick={abrirPainelWeb}
-              title="Abrir painel administrativo completo no navegador"
-            >
-              <IconeLinkExterno size={14} />
-            </button>
             {ehAmbienteDesktop && (
               <>
                 <button
@@ -225,7 +214,9 @@ export const WidgetAgenda = () => {
           </div>
         </header>
 
-        {/* Header Dinâmico: Acontecimentos do Dia Selecionado */}
+        {/* Corpo Rolável do Widget com isolamento contra quebra de layout */}
+        <div className="widget-corpo-scroll">
+          {/* Header Dinâmico: Acontecimentos do Dia Selecionado */}
         <section className="widget-painel-dia-destaque">
           <div className="widget-painel-topo">
             <div className="widget-data-selecionada-titulo">
@@ -246,22 +237,24 @@ export const WidgetAgenda = () => {
               )}
               <span
                 className={`widget-tag-resumo ${
-                  folgasDoDiaSelecionado.length > 0
-                    ? 'com-folgas'
-                    : feriasDoDiaSelecionado.length > 0
+                  feriasDoDiaSelecionado.length > 0
                     ? 'com-ferias'
+                    : folgasDoDiaSelecionado.length > 0
+                    ? 'com-folgas'
                     : outrosEventosDoDiaSelecionado.length > 0
                     ? 'com-eventos'
                     : 'sem-registros'
                 }`}
               >
-                {folgasDoDiaSelecionado.length > 0
+                {feriasDoDiaSelecionado.length > 0
+                  ? `${feriasDoDiaSelecionado.length} férias${
+                      folgasDoDiaSelecionado.length > 0
+                        ? ` (+${folgasDoDiaSelecionado.length} folga${folgasDoDiaSelecionado.length > 1 ? 's' : ''})`
+                        : ''
+                    }`
+                  : folgasDoDiaSelecionado.length > 0
                   ? `${folgasDoDiaSelecionado.length} ${
                       folgasDoDiaSelecionado.length === 1 ? 'folga' : 'folgas'
-                    }`
-                  : feriasDoDiaSelecionado.length > 0
-                  ? `${feriasDoDiaSelecionado.length} ${
-                      feriasDoDiaSelecionado.length === 1 ? 'férias' : 'férias'
                     }`
                   : outrosEventosDoDiaSelecionado.length > 0
                   ? `${outrosEventosDoDiaSelecionado.length} ${
@@ -428,20 +421,20 @@ export const WidgetAgenda = () => {
                   return (
                     <div
                       key={diaIso}
-                      className={`widget-dia-celula ${temFolga ? 'tem-folga' : temFerias ? 'tem-ferias' : ''} ${
+                      className={`widget-dia-celula ${temFerias ? 'tem-ferias' : temFolga ? 'tem-folga' : ''} ${
                         temEvento ? 'tem-evento' : ''
                       } ${ehDiaAtual ? 'hoje' : ''} ${
                         ehDiaSelecionado ? 'selecionado' : ''
                       } ${ehDomingo ? 'domingo' : ''}`}
                       onClick={() => setDiaSelecionado(dia)}
                       title={
-                        temFolga
-                          ? `${dia.getDate()} - ${ausenciasDesteDia.length} ${
-                              ausenciasDesteDia.length === 1 ? 'pessoa ausente/folga' : 'pessoas ausentes/folga'
-                            }`
-                          : temFerias
+                        temFerias
                           ? `${dia.getDate()} - ${feriasDesteDia.length} ${
                               feriasDesteDia.length === 1 ? 'pessoa de férias' : 'pessoas de férias'
+                            }${ausenciasDesteDia.length > 0 ? ` (+${ausenciasDesteDia.length} folga${ausenciasDesteDia.length > 1 ? 's' : ''})` : ''}`
+                          : temFolga
+                          ? `${dia.getDate()} - ${ausenciasDesteDia.length} ${
+                              ausenciasDesteDia.length === 1 ? 'pessoa ausente/folga' : 'pessoas ausentes/folga'
                             }`
                           : temEvento
                           ? `${dia.getDate()} - Dia com evento agendado`
@@ -451,7 +444,7 @@ export const WidgetAgenda = () => {
                       <span>{dia.getDate()}</span>
                       {totalAusenciasDesteDia > 1 && (
                         <span
-                          className="widget-indicador-multi-folgas"
+                          className={`widget-indicador-multi-folgas ${temFerias ? 'com-ferias' : ''}`}
                           title={`${totalAusenciasDesteDia} pessoas ausentes (folgas/férias) neste dia`}
                         >
                           {totalAusenciasDesteDia}
@@ -529,13 +522,11 @@ export const WidgetAgenda = () => {
             </div>
           )}
         </main>
+        </div>
 
-        {/* Rodapé Simples */}
+        {/* Rodapé Simples e Isolado */}
         <footer className="widget-rodape">
           <span>Agenda • Auto Escola São João</span>
-          <button type="button" className="link-painel-web" onClick={abrirPainelWeb}>
-            Abrir Painel Completo <IconeLinkExterno size={12} />
-          </button>
         </footer>
       </div>
     </div>

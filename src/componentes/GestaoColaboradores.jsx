@@ -3,6 +3,7 @@ import { UserPlus, Trash2, Check, AlertCircle } from 'lucide-react';
 import { useColaboradores } from '../hooks/useColaboradores';
 import { CabecalhoPagina } from './CabecalhoPagina';
 import { ModalConfirmacaoExclusao } from './ModalConfirmacaoExclusao';
+import './GestaoColaboradores.css';
 
 export const GestaoColaboradores = () => {
   const { colaboradores, carregando, adicionar, remover } = useColaboradores();
@@ -51,7 +52,7 @@ export const GestaoColaboradores = () => {
   };
 
   return (
-    <div className="calendario-container" style={{ padding: '2.5rem' }}>
+    <div className="calendario-container gestao-colaboradores-container">
       <CabecalhoPagina
         titulo="Gestão de Colaboradores"
         subtitulo="Adicione, remova e gerencie os membros da equipe."
@@ -97,12 +98,12 @@ export const GestaoColaboradores = () => {
         </div>
       )}
 
-      <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid #e2e8f0' }}>
-        <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div className="painel-adicionar-colaborador">
+        <h4 className="painel-adicionar-titulo">
           <UserPlus size={18} />
           <span>Adicionar Colaborador</span>
         </h4>
-        <form onSubmit={lidarComEnvio} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <form onSubmit={lidarComEnvio} className="form-adicionar-colaborador">
           <div className="form-grupo" style={{ flex: 1, minWidth: '200px', marginBottom: 0 }}>
             <label>Nome Completo</label>
             <input
@@ -134,7 +135,7 @@ export const GestaoColaboradores = () => {
       </div>
 
       <div>
-        <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
+        <h4 className="secao-equipe-titulo">
           Equipe Atual ({colaboradores.length})
         </h4>
         {carregando ? (
@@ -142,26 +143,14 @@ export const GestaoColaboradores = () => {
         ) : colaboradores.length === 0 ? (
           <p style={{ color: 'var(--text-secondary)' }}>Nenhum colaborador cadastrado no sistema ainda.</p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div className="lista-colaboradores-scroll">
             {colaboradores.map(c => (
-              <div
-                key={c.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  background: 'white',
-                  padding: '1rem 1.5rem',
-                  borderRadius: '12px',
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
-                }}
-              >
+              <div key={c.id} className="card-colaborador-item">
                 <div>
-                  <div style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '1.05rem' }}>
+                  <div className="colaborador-nome">
                     {c.nome}
                   </div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                  <div className="colaborador-cargo">
                     {c.cargo || 'Sem cargo definido'}
                   </div>
                 </div>

@@ -124,19 +124,32 @@ export const Calendario = () => {
             return e.tipo === 'folga';
           });
           const totalAusenciasDesteDia = ausenciasDesteDia.length + feriasDesteDia.length;
+          const temFerias = feriasDesteDia.length > 0;
+          const temFolga = ausenciasDesteDia.length > 0;
           // Verifica se o dia atual da iteração é um domingo (getDay() retorna 0 para domingo)
           const isDomingo = dia && dia.getDay() === 0;
+
+          // Ordena eventos priorizando férias no topo da célula do dia
+          const eventosOrdenados = [...eventosDesteDia].sort((a, b) => {
+            const ehFeriasA = ehEventoFerias(a);
+            const ehFeriasB = ehEventoFerias(b);
+            if (ehFeriasA && !ehFeriasB) return -1;
+            if (!ehFeriasA && ehFeriasB) return 1;
+            return 0;
+          });
           
           return (
             <div 
               key={index} 
-              className={`dia-celula ${!dia ? 'vazio' : ''} ${isDomingo ? 'domingo' : ''}`}
+              className={`dia-celula ${!dia ? 'vazio' : ''} ${
+                temFerias ? 'tem-ferias' : temFolga ? 'tem-folga' : ''
+              } ${isDomingo ? 'domingo' : ''}`}
               onClick={() => lidarComCliqueNoDia(dia)}
             >
               <div className="dia-celula-cabecalho">
                 {totalAusenciasDesteDia > 1 && (
                   <span 
-                    className="badge-multi-folgas" 
+                    className={`badge-multi-folgas ${temFerias ? 'com-ferias' : ''}`} 
                     title={`${totalAusenciasDesteDia} colaboradores ausentes (folga/férias/afastamento) neste dia`}
                   >
                     {totalAusenciasDesteDia} ausências
@@ -146,7 +159,7 @@ export const Calendario = () => {
               </div>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
-                {eventosDesteDia.map(evento => {
+                {eventosOrdenados.map(evento => {
                   const isFerias = ehEventoFerias(evento);
                   const tipoInfo = obterTipoPorChave(evento.tipo);
                   const temColaborador = Boolean(evento.colaborador?.nome);

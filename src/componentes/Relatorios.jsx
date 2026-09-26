@@ -99,7 +99,7 @@ export const Relatorios = () => {
         ) : folgasFiltradas.length === 0 ? (
           <p style={{ padding: '2rem', color: 'var(--text-secondary)' }}>Nenhuma folga encontrada para os filtros selecionados.</p>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <div className="tabela-relatorio-scroll">
             <table className="tabela-relatorio">
               <thead>
                 <tr>

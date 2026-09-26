@@ -16,7 +16,8 @@ body:has(.widget-wrapper) #root {
 }
 
 .widget-wrapper {
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
   width: 100%;
   display: flex;
   align-items: flex-start;
@@ -24,11 +25,14 @@ body:has(.widget-wrapper) #root {
   background: transparent !important;
   padding: 8px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .widget-container {
   width: 100%;
   max-width: 404px;
+  max-height: calc(100vh - 16px);
+  height: calc(100vh - 16px);
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 16px;
@@ -52,6 +56,34 @@ body:has(.widget-wrapper) #root {
   cursor: grab;
   user-select: none;
   -webkit-app-region: drag;
+  flex-shrink: 0;
+}
+
+/* Corpo Rolável do Widget com Scroll Suave */
+.widget-corpo-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-corpo-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.widget-corpo-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.widget-corpo-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.widget-corpo-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .widget-cabecalho:active {
@@ -282,6 +314,18 @@ body:has(.widget-wrapper) #root {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  max-height: 140px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.widget-acontecimentos-lista::-webkit-scrollbar {
+  width: 4px;
+}
+
+.widget-acontecimentos-lista::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
 }
 
 .widget-acontecimento-item {
@@ -367,8 +411,7 @@ body:has(.widget-wrapper) #root {
 /* Área de Conteúdo */
 .widget-conteudo-aba {
   padding: 0.75rem 1rem 1rem 1rem;
-  max-height: 380px;
-  overflow-y: auto;
+  flex: 1;
 }
 
 .widget-conteudo-aba::-webkit-scrollbar {
@@ -486,19 +529,19 @@ body:has(.widget-wrapper) #root {
   color: #dc2626;
 }
 
-/* PINTADO EM VERMELHO QUANDO HÁ FOLGA */
-.widget-dia-celula.tem-folga {
-  background-color: #fee2e2 !important;
-  color: #991b1b !important;
-  border-color: #fca5a5 !important;
-  font-weight: 700;
-}
-
-/* PINTADO EM LARANJA QUANDO HÁ FÉRIAS */
-.widget-dia-celula.tem-ferias:not(.tem-folga) {
+/* PINTADO EM LARANJA QUANDO HÁ FÉRIAS (PRIORIDADE MÁXIMA SOBRE FOLGAS) */
+.widget-dia-celula.tem-ferias {
   background-color: #ffedd5 !important;
   color: #9a3412 !important;
   border-color: #fed7aa !important;
+  font-weight: 700;
+}
+
+/* PINTADO EM VERMELHO QUANDO HÁ FOLGA (E NÃO HÁ FÉRIAS) */
+.widget-dia-celula.tem-folga:not(.tem-ferias) {
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+  border-color: #fca5a5 !important;
   font-weight: 700;
 }
 
@@ -526,7 +569,11 @@ body:has(.widget-wrapper) #root {
   border-radius: 2px;
 }
 
-.widget-dia-celula.tem-folga.hoje::after {
+.widget-dia-celula.tem-ferias.hoje::after {
+  background-color: #9a3412;
+}
+
+.widget-dia-celula.tem-folga:not(.tem-ferias).hoje::after {
   background-color: #991b1b;
 }
 
@@ -538,7 +585,7 @@ body:has(.widget-wrapper) #root {
   z-index: 2;
 }
 
-/* Indicador de 2 ou mais pessoas de folga no mesmo dia */
+/* Indicador de 2 ou mais pessoas ausentes no mesmo dia (com férias prioritárias) */
 .widget-indicador-multi-folgas {
   position: absolute;
   top: 1px;
@@ -557,6 +604,12 @@ body:has(.widget-wrapper) #root {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   border: 1px solid #fee2e2;
   z-index: 1;
+}
+
+.widget-dia-celula.tem-ferias .widget-indicador-multi-folgas,
+.widget-indicador-multi-folgas.com-ferias {
+  background-color: #ea580c;
+  border-color: #ffedd5;
 }
 
 /* Lista da Aba "Próximos Dias" */
@@ -620,34 +673,16 @@ body:has(.widget-wrapper) #root {
   font-style: italic;
 }
 
-/* Rodapé */
+/* Rodapé Simples e Isolado */
 .widget-rodape {
   padding: 0.65rem 1rem;
   border-top: 1px solid #f1f5f9;
   background: #f8fafc;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   font-size: 0.72rem;
   color: #64748b;
-}
-
-.link-painel-web {
-  color: #2563eb;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-weight: 600;
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 0.72rem;
-  transition: color 0.15s ease;
-}
-
-.link-painel-web:hover {
-  color: #1d4ed8;
-  text-decoration: underline;
+  flex-shrink: 0;
+  font-weight: 500;
 }
