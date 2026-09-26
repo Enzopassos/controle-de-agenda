@@ -17,20 +17,20 @@ jobs:
       - name: Instalar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Instalar Rust
         uses: dtolnay/rust-toolchain@stable
 
       - name: Instalar Dependências do Projeto
-        run: npm ci
+        run: npm install
 
       - name: Compilar Executável do Windows
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-        run: npm run tauri build
+        run: npx @tauri-apps/cli build
 
       - name: Salvar Instalador do Windows (.exe / .msi) como Artefato
         uses: actions/upload-artifact@v4

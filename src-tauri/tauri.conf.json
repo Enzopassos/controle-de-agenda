@@ -12,6 +12,7 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "Auto Escola São João - Agenda",
         "width": 420,
         "height": 650,
