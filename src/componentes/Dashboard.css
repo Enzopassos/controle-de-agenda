@@ -1,0 +1,802 @@
+/* ==========================================================================
+   DASHBOARD OPERACIONAL EXECUTIVO
+   Identidade: Azul Marinho Sólido (#0F172A), Vermelho Institucional (#DC2626)
+   Fundo Cinza Claro (#F8FAFC), Cards em Branco Puro (#FFFFFF) e 100% Cores Sólidas
+   ========================================================================== */
+
+.dashboard-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding-bottom: 3rem;
+  animation: fadeInDashboard 0.25s ease-out;
+}
+
+@keyframes fadeInDashboard {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   1. BANNER EXECUTIVO DE SAUDAÇÃO & STATUS DO DIA (CORES SÓLIDAS)
+   -------------------------------------------------------------------------- */
+.dashboard-banner-saudacao {
+  background-color: #0f172a;
+  border-left: 4px solid var(--cor-marca, #dc2626);
+  border-radius: 14px;
+  padding: 1.75rem 2rem;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.banner-topo-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.banner-titulos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.banner-data-hoje {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.banner-saudacao-texto {
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.banner-subtexto {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+/* Badge de Status Operacional */
+.banner-status-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  padding: 0.6rem 1.1rem;
+  border-radius: 9999px;
+}
+
+.banner-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #10b981;
+}
+
+.banner-status-dot.atencao {
+  background-color: var(--cor-marca, #dc2626);
+}
+
+.banner-status-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.banner-status-rotulo {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.banner-status-valor {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Eventos de Hoje dentro do Banner */
+.banner-eventos-hoje-bloco {
+  border-top: 1px solid #1e293b;
+  padding-top: 1rem;
+}
+
+.banner-eventos-hoje-titulo {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin-bottom: 0.65rem;
+}
+
+.banner-eventos-hoje-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.banner-evento-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  color: #f8fafc;
+}
+
+.banner-evento-chip-tipo {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   2. CARDS DE MÉTRICAS (KPIs)
+   -------------------------------------------------------------------------- */
+.dashboard-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.25rem;
+}
+
+.dashboard-kpi-card {
+  background-color: #ffffff;
+  border: 1px solid var(--cor-borda, #e2e8f0);
+  border-radius: 12px;
+  padding: 1.35rem 1.45rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dashboard-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.kpi-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.kpi-icone-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpi-icone-box.azul {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.kpi-icone-box.vermelho {
+  background-color: #fef2f2;
+  color: var(--cor-marca, #dc2626);
+}
+
+.kpi-icone-box.verde {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.kpi-icone-box.indigo {
+  background-color: #eef2ff;
+  color: #4f46e5;
+}
+
+.kpi-rotulo {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cor-texto-secundario, #64748b);
+}
+
+.kpi-valor-bloco {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.kpi-valor {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--cor-texto-principal, #0f172a);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.kpi-unidade {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--cor-texto-secundario, #64748b);
+}
+
+.kpi-rodape-info {
+  font-size: 0.78rem;
+  color: var(--cor-texto-secundario, #64748b);
+}
+
+/* --------------------------------------------------------------------------
+   3. SEÇÃO DE GRÁFICOS (DONUT + BARRAS NATIVOS EM SVG)
+   -------------------------------------------------------------------------- */
+.dashboard-graficos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 1.5rem;
+}
+
+.card-grafico-dashboard {
+  background-color: #ffffff;
+  border: 1px solid var(--cor-borda, #e2e8f0);
+  border-radius: 14px;
+  padding: 1.6rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.grafico-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.grafico-titulo-grupo {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.grafico-icone-header {
+  width: 32px;
+  height: 32px;
+  background-color: #f1f5f9;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f172a;
+}
+
+.grafico-titulo {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--cor-texto-principal, #0f172a);
+  margin: 0;
+}
+
+.grafico-subtitulo {
+  font-size: 0.8rem;
+  color: var(--cor-texto-secundario, #64748b);
+  margin: 0;
+}
+
+/* Gráfico Donut */
+.donut-layout-container {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  min-height: 200px;
+}
+
+.donut-svg-wrapper {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  flex-shrink: 0;
+}
+
+.donut-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.donut-circulo-base {
+  stroke: #f1f5f9;
+}
+
+.donut-segmento {
+  transition: stroke-dasharray 0.3s ease, stroke 0.2s ease;
+}
+
+.donut-centro-info {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.donut-centro-rotulo {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario, #64748b);
+  letter-spacing: 0.05em;
+}
+
+.donut-centro-total {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--cor-texto-principal, #0f172a);
+  line-height: 1.1;
+}
+
+.donut-legendas-lista {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.donut-legenda-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.donut-legenda-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.84rem;
+}
+
+.donut-legenda-nome {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--cor-texto-principal, #0f172a);
+}
+
+.donut-ponto-cor {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.donut-legenda-valores {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cor-texto-secundario, #64748b);
+}
+
+.donut-barra-trilho {
+  width: 100%;
+  height: 6px;
+  background-color: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.donut-barra-preenchimento {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+/* Gráfico de Barras Mensais */
+.barras-legenda-topo {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.item-legenda-barras {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--cor-texto-secundario, #64748b);
+}
+
+.dot-legenda-azul {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background-color: #2563eb;
+}
+
+.dot-legenda-vermelho {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background-color: var(--cor-marca, #dc2626);
+}
+
+.barras-grafico-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  height: 190px;
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--cor-borda, #e2e8f0);
+}
+
+.coluna-mes-grupo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.coluna-mes-barras {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 140px;
+  width: 100%;
+  justify-content: center;
+}
+
+.barra-grafico {
+  width: 14px;
+  min-height: 4px;
+  border-radius: 3px 3px 0 0;
+  transition: height 0.3s ease, filter 0.15s ease;
+  position: relative;
+}
+
+.barra-grafico:hover {
+  filter: brightness(1.15);
+}
+
+.barra-grafico.geral {
+  background-color: #2563eb;
+}
+
+.barra-grafico.ausencia {
+  background-color: var(--cor-marca, #dc2626);
+}
+
+.coluna-mes-rotulo {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cor-texto-secundario, #64748b);
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   4. SEÇÃO OPERACIONAL DIVIDIDA (AGENDA 15 DIAS + RANKING ANUAL)
+   -------------------------------------------------------------------------- */
+.dashboard-operacional-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1.5rem;
+}
+
+.card-operacional {
+  background-color: #ffffff;
+  border: 1px solid var(--cor-borda, #e2e8f0);
+  border-radius: 14px;
+  padding: 1.6rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.card-operacional-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--cor-borda, #e2e8f0);
+  padding-bottom: 0.9rem;
+}
+
+.card-operacional-titulo-box {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.card-operacional-titulo {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--cor-texto-principal, #0f172a);
+  margin: 0;
+}
+
+.card-operacional-badge-qtd {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: #f1f5f9;
+  color: #0f172a;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+}
+
+/* Timeline Lista de Eventos */
+.timeline-eventos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 0.35rem;
+}
+
+.timeline-item-evento {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease;
+}
+
+.timeline-item-evento:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.timeline-data-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  line-height: 1.1;
+  flex-shrink: 0;
+}
+
+.timeline-dia {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.timeline-mes {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.timeline-colab-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.84rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.timeline-info-bloco {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.timeline-nome-colab {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--cor-texto-principal, #0f172a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timeline-descricao-evento {
+  font-size: 0.8rem;
+  color: var(--cor-texto-secundario, #64748b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timeline-tipo-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Ranking de Folgas & Escala (100% Cores Sólidas, Sem Degradê) */
+.ranking-folgas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 0.35rem;
+}
+
+.ranking-item-colab {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.ranking-item-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ranking-colab-bloco {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ranking-posicao-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #cbd5e1;
+  color: #0f172a;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ranking-posicao-badge.primeiro {
+  background-color: #0f172a;
+  color: #ffffff;
+}
+
+.ranking-posicao-badge.segundo {
+  background-color: #334155;
+  color: #ffffff;
+}
+
+.ranking-posicao-badge.terceiro {
+  background-color: #64748b;
+  color: #ffffff;
+}
+
+.ranking-colab-nome {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--cor-texto-principal, #0f172a);
+}
+
+.ranking-colab-cargo {
+  font-size: 0.75rem;
+  color: var(--cor-texto-secundario, #64748b);
+}
+
+.ranking-dias-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a;
+  background-color: #ffffff;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+.ranking-trilho-progresso {
+  width: 100%;
+  height: 6px;
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+/* Cor 100% sólida e limpa na barra de monitoramento, sem nenhum degradê */
+.ranking-barra-preenchimento {
+  height: 100%;
+  border-radius: 9999px;
+  background-color: #2563eb;
+  transition: width 0.3s ease;
+}
+
+/* Estado Vazio Amigável */
+.dashboard-vazio-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--cor-texto-secundario, #64748b);
+  gap: 0.5rem;
+}
+
+.dashboard-vazio-box p {
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   5. RESPONSIVIDADE
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .dashboard-operacional-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-graficos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .donut-layout-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .dashboard-banner-saudacao {
+    padding: 1.5rem;
+  }
+
+  .banner-saudacao-texto {
+    font-size: 1.35rem;
+  }
+}

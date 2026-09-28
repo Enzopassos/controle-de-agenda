@@ -1,0 +1,504 @@
+/* ==========================================================================
+   TELA DE CALENDÁRIO CORPORATIVO
+   Design System: Branco Puro (#FFFFFF), Cinza Claro (#F8FAFC), Cores Sólidas
+   100% Livre de Degradês e Efeitos de Vidro Desatualizados
+   ========================================================================== */
+
+.calendario-wrapper {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 3rem;
+  animation: fadeInCalendario 0.2s ease-out;
+}
+
+@keyframes fadeInCalendario {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   1. CONTAINER PRINCIPAL DO CALENDÁRIO
+   -------------------------------------------------------------------------- */
+.calendario-card-principal {
+  background-color: #ffffff;
+  border: 1px solid var(--cor-borda, #e2e8f0);
+  border-radius: 14px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Título de Mês Interativo */
+.titulo-mes-seletor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+  user-select: none;
+}
+
+.titulo-mes-seletor:hover {
+  background-color: #f1f5f9;
+}
+
+.titulo-mes-texto {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--cor-texto-principal, #0f172a);
+  text-transform: capitalize;
+  letter-spacing: -0.02em;
+}
+
+.titulo-mes-icone {
+  color: #64748b;
+  display: flex;
+  align-items: center;
+}
+
+/* Botões do Cabeçalho de Navegação */
+.calendario-acoes-topo {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.btn-lancar-ferias-solido {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 0.55rem 1rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btn-lancar-ferias-solido:hover {
+  background-color: #1e293b;
+}
+
+.btn-mes-atual-solido {
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  padding: 0.55rem 0.95rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-mes-atual-solido:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.btn-navegacao-mes {
+  width: 38px;
+  height: 38px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-navegacao-mes:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* --------------------------------------------------------------------------
+   2. BARRA DE FERRAMENTAS: FILTRO POR INSTRUTOR & LEGENDA OFICIAL
+   -------------------------------------------------------------------------- */
+.calendario-barra-ferramentas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.85rem 1.25rem;
+}
+
+.ferramenta-filtro-bloco {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ferramenta-rotulo {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.select-filtro-colaborador {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #0f172a;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+  min-width: 190px;
+}
+
+.select-filtro-colaborador:focus {
+  border-color: #2563eb;
+}
+
+/* Legenda e Filtro Rápido de Tipos */
+.legenda-tipos-grade {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.chip-legenda-tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chip-legenda-tipo:hover {
+  border-color: #cbd5e1;
+  background-color: #f1f5f9;
+}
+
+.chip-legenda-tipo.ativo {
+  border-color: #0f172a;
+  background-color: #0f172a;
+  color: #ffffff;
+}
+
+.ponto-legenda-cor {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.btn-limpar-filtros {
+  background: none;
+  border: none;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #dc2626;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0 0.35rem;
+}
+
+/* --------------------------------------------------------------------------
+   3. GRADE DO CALENDÁRIO
+   -------------------------------------------------------------------------- */
+.calendario-grade-mensal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.65rem;
+}
+
+.cabecalho-dia-semana {
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Célula do Dia */
+.dia-celula-grade {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  min-height: 125px;
+  padding: 0.65rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+}
+
+.dia-celula-grade:hover {
+  border-color: #2563eb;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+.dia-celula-grade.vazio {
+  background-color: #fafbfc;
+  border: 1px dashed #e2e8f0;
+  cursor: default;
+}
+
+.dia-celula-grade.vazio:hover {
+  border-color: #e2e8f0;
+  box-shadow: none;
+}
+
+.dia-celula-grade.domingo {
+  background-color: #f8fafc;
+}
+
+/* Dia de Hoje com Borda e Destaque Sólido */
+.dia-celula-grade.hoje {
+  border: 2px solid #2563eb;
+  background-color: #fcfdff;
+}
+
+.dia-celula-grade.hoje .dia-numero-texto {
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.dia-celula-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.badge-resumo-ausencias {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  line-height: 1.1;
+}
+
+.dia-numero-texto {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #334155;
+  margin-left: auto;
+}
+
+/* Lista de Eventos na Célula */
+.dia-celula-lista-eventos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  overflow-y: auto;
+  max-height: 110px;
+}
+
+.badge-evento-celula {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  line-height: 1.25;
+  position: relative;
+  transition: opacity 0.15s ease;
+}
+
+.badge-evento-celula:hover {
+  opacity: 0.9;
+}
+
+.badge-evento-conteudo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.badge-evento-colab {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-evento-titulo {
+  font-size: 0.68rem;
+  opacity: 0.88;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-excluir-evento-rapido {
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.5;
+  cursor: pointer;
+  padding: 0 0.2rem;
+  font-size: 0.95rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-excluir-evento-rapido:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* --------------------------------------------------------------------------
+   4. MODAL RÁPIDO DE MESES / ANO
+   -------------------------------------------------------------------------- */
+.modal-overlay-calendario {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 1.5rem;
+  backdrop-filter: blur(2px);
+}
+
+.modal-card-meses {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 380px;
+  padding: 1.75rem;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.modal-meses-navegacao-ano {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-ano-titulo {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.grid-selecao-meses {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+.btn-opcao-mes {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.75rem 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-opcao-mes:hover {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.btn-opcao-mes.selecionado {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.btn-opcao-mes.mes-atual {
+  border: 2px solid #2563eb;
+  font-weight: 800;
+}
+
+/* --------------------------------------------------------------------------
+   5. RESPONSIVIDADE
+   -------------------------------------------------------------------------- */
+@media (max-width: 960px) {
+  .calendario-card-principal {
+    padding: 1.25rem;
+  }
+
+  .calendario-barra-ferramentas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .select-filtro-colaborador {
+    width: 100%;
+  }
+
+  .dia-celula-grade {
+    min-height: 90px;
+    padding: 0.4rem;
+  }
+
+  .dia-numero-texto {
+    width: 22px;
+    height: 22px;
+    font-size: 0.78rem;
+  }
+}

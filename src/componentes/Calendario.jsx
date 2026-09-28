@@ -1,57 +1,128 @@
-import { useState } from 'react';
-import { Palmtree } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
+  Palmtree,
+  Users,
+} from 'lucide-react';
 import { obterDiasDoMes, formatarData, nomesDosMeses, diasDaSemana } from '../utils/dataUtils';
 import { useEventos } from '../hooks/useEventos';
 import { useTiposRegistro } from '../hooks/useTiposRegistro';
-import { obterEstiloBadge } from '../utils/corUtils';
+import { useColaboradores } from '../hooks/useColaboradores';
+import { hexParaRgba } from '../utils/corUtils';
 import { ModalDeEvento } from './ModalDeEvento';
 import { ModalDeFerias } from './ModalDeFerias';
 import { ModalConfirmacaoExclusao } from './ModalConfirmacaoExclusao';
 import { CabecalhoPagina } from './CabecalhoPagina';
 import { ErrorBoundary } from './ErrorBoundary';
+import './Calendario.css';
 
+/**
+ * Função utilitária para verificar se um evento é de férias.
+ */
 const ehEventoFerias = (evento) => {
   if (!evento) return false;
   return (
     evento.tipo === 'ferias' ||
     (Boolean(evento.titulo) &&
-      (evento.titulo.toLowerCase().includes('férias') || evento.titulo.toLowerCase().includes('ferias')))
+      (evento.titulo.toLowerCase().includes('férias') ||
+        evento.titulo.toLowerCase().includes('ferias')))
   );
 };
 
 export const Calendario = () => {
   const [dataAtual, setDataAtual] = useState(new Date());
   const [diaSelecionado, setDiaSelecionado] = useState(null);
-  
-  // Estados para os Modais
+
+  // Filtros rápidos
+  const [filtroColaboradorId, setFiltroColaboradorId] = useState('');
+  const [filtroTipoChave, setFiltroTipoChave] = useState('');
+
+  // Estados dos modais
   const [modalMesesAberto, setModalMesesAberto] = useState(false);
   const [modalFeriasAberto, setModalFeriasAberto] = useState(false);
   const [anoSelecionadoModal, setAnoSelecionadoModal] = useState(new Date().getFullYear());
   const [eventoParaExcluir, setEventoParaExcluir] = useState(null);
 
   const { eventos, adicionarEvento, adicionarVariosEventos, removerEvento } = useEventos();
-  const { obterTipoPorChave } = useTiposRegistro();
+  const { tipos, obterTipoPorChave } = useTiposRegistro();
+  const { colaboradores } = useColaboradores();
 
-  const dataHoje = new Date();
+  const dataHoje = useMemo(() => new Date(), []);
   const ano = dataAtual.getFullYear();
   const mes = dataAtual.getMonth();
 
-  const dias = obterDiasDoMes(ano, mes);
+  const dias = useMemo(() => obterDiasDoMes(ano, mes), [ano, mes]);
 
   const irParaMesAnterior = () => setDataAtual(new Date(ano, mes - 1, 1));
   const irParaProximoMes = () => setDataAtual(new Date(ano, mes + 1, 1));
   const voltarParaHoje = () => setDataAtual(new Date(dataHoje.getFullYear(), dataHoje.getMonth(), 1));
 
-  // Verifica se estamos em um mês ou ano diferente do atual para mostrar o botão
+  // Verifica se não estamos no mês atual para exibir o botão
   const mostrarBotaoHoje = ano !== dataHoje.getFullYear() || mes !== dataHoje.getMonth();
 
-  const lidarComCliqueNoDia = (dia) => {
-    if (dia) setDiaSelecionado(dia);
-  };
+  // Resolver informações e cor cadastrada do tipo de registro
+  const resolverInformacoesTipo = useMemo(() => {
+    return (tipoChave, evento) => {
+      const isFerias = ehEventoFerias(evento) || tipoChave === 'ferias';
+      const chaveBusca = isFerias ? 'ferias' : (tipoChave || 'evento');
+      const tipoCadastrado = obterTipoPorChave(chaveBusca);
+
+      const nome =
+        tipoCadastrado?.nome ||
+        (isFerias ? 'Férias' : chaveBusca.charAt(0).toUpperCase() + chaveBusca.slice(1));
+      const cor =
+        tipoCadastrado?.cor_hex ||
+        (isFerias ? '#f97316' : chaveBusca === 'folga' ? '#ef4444' : '#2563eb');
+      const computaAusencia =
+        isFerias || Boolean(tipoCadastrado?.computa_ausencia) || chaveBusca === 'folga';
+
+      return {
+        chave: chaveBusca,
+        nome,
+        cor,
+        computaAusencia,
+      };
+    };
+  }, [obterTipoPorChave]);
+
+  // Aplicação dos filtros em tempo real
+  const eventosFiltrados = useMemo(() => {
+    return eventos.filter((e) => {
+      if (filtroColaboradorId && e.colaborador_id !== filtroColaboradorId) {
+        return false;
+      }
+      if (filtroTipoChave) {
+        const info = resolverInformacoesTipo(e.tipo, e);
+        if (info.chave !== filtroTipoChave) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [eventos, filtroColaboradorId, filtroTipoChave, resolverInformacoesTipo]);
+
+  // Contagem de eventos por tipo no mês atual visível (para exibir na legenda)
+  const contagemTiposMesAtual = useMemo(() => {
+    const mesStr = String(mes + 1).padStart(2, '0');
+    const prefixoMes = `${ano}-${mesStr}`;
+    const contagem = {};
+
+    eventos.forEach((e) => {
+      if (e.data && e.data.startsWith(prefixoMes)) {
+        const info = resolverInformacoesTipo(e.tipo, e);
+        contagem[info.chave] = (contagem[info.chave] || 0) + 1;
+      }
+    });
+
+    return contagem;
+  }, [eventos, ano, mes, resolverInformacoesTipo]);
 
   const obterEventosDoDia = (dia) => {
+    if (!dia) return [];
     const dataStr = formatarData(dia);
-    return eventos.filter(evento => evento.data === dataStr);
+    return eventosFiltrados.filter((evento) => evento.data === dataStr);
   };
 
   const selecionarMesNoModal = (indiceMes) => {
@@ -71,155 +142,255 @@ export const Calendario = () => {
   };
 
   return (
-    <div className="calendario-container">
+    <div className="calendario-wrapper">
+      {/* Cabeçalho de Navegação e Contexto da Página */}
       <CabecalhoPagina
         titulo={
-          <span 
-            className="titulo-mes-clicavel"
+          <div
+            className="titulo-mes-seletor"
             onClick={() => {
               setAnoSelecionadoModal(ano);
               setModalMesesAberto(true);
             }}
-            title="Mudar mês/ano rapidamente"
+            title="Clique para alternar o mês e ano rapidamente"
           >
-            {nomesDosMeses[mes]} {ano}
-          </span>
+            <span className="titulo-mes-texto">
+              {nomesDosMeses[mes]} {ano}
+            </span>
+            <span className="titulo-mes-icone">
+              <CalendarDays size={20} />
+            </span>
+          </div>
         }
-        subtitulo="Gerencie e acompanhe o calendário corporativo da equipe."
+        subtitulo="Gestão de escalas, aulas práticas e ausências da equipe com cores oficiais."
         trilha={[{ rotulo: 'Calendário' }]}
         acoes={
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div className="calendario-acoes-topo">
             <button
               type="button"
-              className="btn-lancar-ferias"
+              className="btn-lancar-ferias-solido"
               onClick={() => setModalFeriasAberto(true)}
               title="Lançar período de férias de um colaborador"
             >
               <Palmtree size={16} />
               <span>Lançar Férias</span>
             </button>
+
             {mostrarBotaoHoje && (
-              <button className="btn-hoje" onClick={voltarParaHoje}>
+              <button
+                type="button"
+                className="btn-mes-atual-solido"
+                onClick={voltarParaHoje}
+                title="Voltar para o mês corrente"
+              >
                 Mês Atual
               </button>
             )}
-            <button className="btn-navegacao" onClick={irParaMesAnterior} title="Mês Anterior">&lt;</button>
-            <button className="btn-navegacao" onClick={irParaProximoMes} title="Próximo Mês">&gt;</button>
+
+            <button
+              type="button"
+              className="btn-navegacao-mes"
+              onClick={irParaMesAnterior}
+              title="Mês Anterior"
+              aria-label="Mês Anterior"
+            >
+              <ChevronLeft size={20} />
+            </button>
+
+            <button
+              type="button"
+              className="btn-navegacao-mes"
+              onClick={irParaProximoMes}
+              title="Próximo Mês"
+              aria-label="Próximo Mês"
+            >
+              <ChevronRight size={20} />
+            </button>
           </div>
         }
       />
 
-      <div className="calendario-grade">
-        {diasDaSemana.map(diaSemana => (
-          <div key={diaSemana} className="dia-semana-item">{diaSemana}</div>
-        ))}
-
-        {dias.map((dia, index) => {
-          const eventosDesteDia = dia ? obterEventosDoDia(dia) : [];
-          const feriasDesteDia = eventosDesteDia.filter(e => ehEventoFerias(e));
-          const ausenciasDesteDia = eventosDesteDia.filter(e => {
-            if (ehEventoFerias(e)) return false; // Já contado nas férias
-            const infoTipo = obterTipoPorChave(e.tipo);
-            if (infoTipo) return Boolean(infoTipo.computa_ausencia);
-            return e.tipo === 'folga';
-          });
-          const totalAusenciasDesteDia = ausenciasDesteDia.length + feriasDesteDia.length;
-          const temFerias = feriasDesteDia.length > 0;
-          const temFolga = ausenciasDesteDia.length > 0;
-          // Verifica se o dia atual da iteração é um domingo (getDay() retorna 0 para domingo)
-          const isDomingo = dia && dia.getDay() === 0;
-
-          // Ordena eventos priorizando férias no topo da célula do dia
-          const eventosOrdenados = [...eventosDesteDia].sort((a, b) => {
-            const ehFeriasA = ehEventoFerias(a);
-            const ehFeriasB = ehEventoFerias(b);
-            if (ehFeriasA && !ehFeriasB) return -1;
-            if (!ehFeriasA && ehFeriasB) return 1;
-            return 0;
-          });
-          
-          return (
-            <div 
-              key={index} 
-              className={`dia-celula ${!dia ? 'vazio' : ''} ${
-                temFerias ? 'tem-ferias' : temFolga ? 'tem-folga' : ''
-              } ${isDomingo ? 'domingo' : ''}`}
-              onClick={() => lidarComCliqueNoDia(dia)}
+      {/* Card Principal da Grade do Calendário */}
+      <div className="calendario-card-principal">
+        {/* Barra de Ferramentas: Filtro por Colaborador & Legenda Oficial */}
+        <div className="calendario-barra-ferramentas">
+          <div className="ferramenta-filtro-bloco">
+            <label className="ferramenta-rotulo" htmlFor="filtro-colaborador-select">
+              <Users size={16} />
+              <span>Filtrar por:</span>
+            </label>
+            <select
+              id="filtro-colaborador-select"
+              className="select-filtro-colaborador"
+              value={filtroColaboradorId}
+              onChange={(e) => setFiltroColaboradorId(e.target.value)}
             >
-              <div className="dia-celula-cabecalho">
-                {totalAusenciasDesteDia > 1 && (
-                  <span 
-                    className={`badge-multi-folgas ${temFerias ? 'com-ferias' : ''}`} 
-                    title={`${totalAusenciasDesteDia} colaboradores ausentes (folga/férias/afastamento) neste dia`}
-                  >
-                    {totalAusenciasDesteDia} ausências
-                  </span>
-                )}
-                {dia && <span className="dia-numero">{dia.getDate()}</span>}
-              </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
-                {eventosOrdenados.map(evento => {
-                  const isFerias = ehEventoFerias(evento);
-                  const tipoInfo = obterTipoPorChave(evento.tipo);
-                  const temColaborador = Boolean(evento.colaborador?.nome);
-                  const estiloBadge = tipoInfo?.cor_hex ? obterEstiloBadge(tipoInfo.cor_hex) : undefined;
-                  const classeTipo = isFerias ? 'ferias' : (tipoInfo?.chave || evento.tipo);
+              <option value="">Todos os Instrutores / Equipe</option>
+              {colaboradores.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nome} {c.cargo ? `(${c.cargo})` : ''}
+                </option>
+              ))}
+            </select>
 
-                  return (
-                    <div 
-                      key={evento.id} 
-                      className={`evento-badge ${classeTipo}`}
-                      style={estiloBadge}
-                      title={`${tipoInfo?.nome || evento.tipo}: ${evento.titulo}`}
-                    >
-                      {isFerias ? (
-                        <>
-                          <span style={{ fontWeight: '700' }}>
-                            {evento.colaborador?.nome || 'Colaborador'} (Férias)
-                          </span>
-                          <span style={{ fontSize: '0.7rem', opacity: 0.9 }}>{evento.titulo}</span>
-                        </>
-                      ) : temColaborador ? (
-                        <>
-                          <span style={{ fontWeight: '700' }}>{evento.colaborador?.nome}</span>
-                          <span style={{ fontSize: '0.7rem', opacity: 0.9 }}>
-                            {tipoInfo && tipoInfo.chave !== 'folga' ? `[${tipoInfo.nome}] ` : ''}{evento.titulo}
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <span style={{ fontWeight: '700' }}>{evento.titulo}</span>
-                          {tipoInfo && tipoInfo.chave !== 'evento' && (
-                            <span style={{ fontSize: '0.7rem', opacity: 0.9 }}>{tipoInfo.nome}</span>
-                          )}
-                        </>
-                      )}
-                      
-                      <button 
-                        className="btn-remover-evento" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEventoParaExcluir(evento);
-                        }}
-                        title="Remover agendamento"
-                      >
-                        &times;
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
+            {(filtroColaboradorId || filtroTipoChave) && (
+              <button
+                type="button"
+                className="btn-limpar-filtros"
+                onClick={() => {
+                  setFiltroColaboradorId('');
+                  setFiltroTipoChave('');
+                }}
+              >
+                Limpar filtros
+              </button>
+            )}
+          </div>
+
+          {/* Legenda de Tipos e Filtro Rápido */}
+          <div className="legenda-tipos-grade" role="region" aria-label="Legenda de tipos de registro">
+            {tipos.map((tipo) => {
+              const estaAtivo = filtroTipoChave === tipo.chave;
+              const quantidade = contagemTiposMesAtual[tipo.chave] || 0;
+
+              return (
+                <button
+                  key={tipo.chave}
+                  type="button"
+                  className={`chip-legenda-tipo ${estaAtivo ? 'ativo' : ''}`}
+                  onClick={() =>
+                    setFiltroTipoChave(estaAtivo ? '' : tipo.chave)
+                  }
+                  title={`Clique para filtrar apenas registros de ${tipo.nome}`}
+                >
+                  <span
+                    className="ponto-legenda-cor"
+                    style={{ backgroundColor: tipo.cor_hex }}
+                  />
+                  <span>{tipo.nome}</span>
+                  {quantidade > 0 && (
+                    <span style={{ opacity: 0.7, fontSize: '0.72rem' }}>({quantidade})</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Grade Mensal */}
+        <div className="calendario-grade-mensal">
+          {diasDaSemana.map((diaSemana) => (
+            <div key={diaSemana} className="cabecalho-dia-semana">
+              {diaSemana}
             </div>
-          );
-        })}
+          ))}
+
+          {dias.map((dia, index) => {
+            const eventosDesteDia = obterEventosDoDia(dia);
+            const isDomingo = dia && dia.getDay() === 0;
+
+            // Verifica se este dia é o dia de hoje
+            const ehHoje =
+              dia &&
+              dia.getDate() === dataHoje.getDate() &&
+              dia.getMonth() === dataHoje.getMonth() &&
+              dia.getFullYear() === dataHoje.getFullYear();
+
+            // Total de ausências computadas neste dia
+            const ausenciasDesteDia = eventosDesteDia.filter(
+              (e) => resolverInformacoesTipo(e.tipo, e).computaAusencia
+            );
+
+            // Ordena eventos priorizando férias no topo
+            const eventosOrdenados = [...eventosDesteDia].sort((a, b) => {
+              const ehFeriasA = ehEventoFerias(a);
+              const ehFeriasB = ehEventoFerias(b);
+              if (ehFeriasA && !ehFeriasB) return -1;
+              if (!ehFeriasA && ehFeriasB) return 1;
+              return 0;
+            });
+
+            return (
+              <div
+                key={index}
+                className={`dia-celula-grade ${!dia ? 'vazio' : ''} ${
+                  isDomingo ? 'domingo' : ''
+                } ${ehHoje ? 'hoje' : ''}`}
+                onClick={() => dia && setDiaSelecionado(dia)}
+              >
+                {/* Cabeçalho da Célula (Número do dia e contador) */}
+                <div className="dia-celula-topo">
+                  {ausenciasDesteDia.length > 1 && (
+                    <span className="badge-resumo-ausencias">
+                      {ausenciasDesteDia.length} ausências
+                    </span>
+                  )}
+                  {dia && <span className="dia-numero-texto">{dia.getDate()}</span>}
+                </div>
+
+                {/* Lista de Badges de Eventos na Célula */}
+                <div className="dia-celula-lista-eventos">
+                  {eventosOrdenados.map((evento) => {
+                    const info = resolverInformacoesTipo(evento.tipo, evento);
+                    const temColaborador = Boolean(evento.colaborador?.nome);
+                    const nomeExibicao = temColaborador
+                      ? evento.colaborador.nome
+                      : evento.titulo;
+
+                    return (
+                      <div
+                        key={evento.id}
+                        className="badge-evento-celula"
+                        style={{
+                          backgroundColor: hexParaRgba(info.cor, 0.1),
+                          color: info.cor,
+                          borderLeft: `3px solid ${info.cor}`,
+                          borderRight: `1px solid ${hexParaRgba(info.cor, 0.25)}`,
+                          borderTop: `1px solid ${hexParaRgba(info.cor, 0.25)}`,
+                          borderBottom: `1px solid ${hexParaRgba(info.cor, 0.25)}`,
+                        }}
+                        title={`${info.nome}: ${evento.titulo}`}
+                      >
+                        <div className="badge-evento-conteudo">
+                          <span className="badge-evento-colab">{nomeExibicao}</span>
+                          <span className="badge-evento-titulo">
+                            {temColaborador && info.chave !== 'folga'
+                              ? `[${info.nome}] ${evento.titulo}`
+                              : evento.titulo}
+                          </span>
+                        </div>
+
+                        {/* Botão de Exclusão Rápida */}
+                        <button
+                          type="button"
+                          className="btn-excluir-evento-rapido"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEventoParaExcluir(evento);
+                          }}
+                          title="Remover este agendamento"
+                          aria-label="Remover agendamento"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Modal de Agendamento (Ao clicar no dia) */}
       {diaSelecionado && (
-        <ErrorBoundary key={diaSelecionado instanceof Date ? diaSelecionado.getTime() : 'modal-evento'} aoResetar={() => setDiaSelecionado(null)}>
-          <ModalDeEvento 
-            data={diaSelecionado} 
+        <ErrorBoundary
+          key={diaSelecionado instanceof Date ? diaSelecionado.getTime() : 'modal-evento'}
+          aoResetar={() => setDiaSelecionado(null)}
+        >
+          <ModalDeEvento
+            data={diaSelecionado}
             aoFechar={() => setDiaSelecionado(null)}
             aoSalvar={adicionarEvento}
           />
@@ -229,31 +400,58 @@ export const Calendario = () => {
       {/* Modal de Lançar Férias */}
       {modalFeriasAberto && (
         <ErrorBoundary aoResetar={() => setModalFeriasAberto(false)}>
-          <ModalDeFerias 
+          <ModalDeFerias
             aoFechar={() => setModalFeriasAberto(false)}
             aoSalvar={adicionarVariosEventos}
           />
         </ErrorBoundary>
       )}
 
-      {/* Modal de Seleção Rápida de Mês/Ano (Ao clicar no título) */}
+      {/* Modal de Seleção Rápida de Mês/Ano */}
       {modalMesesAberto && (
-        <div className="modal-overlay" onClick={() => setModalMesesAberto(false)}>
-          <div className="modal-conteudo modal-meses" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <button className="btn-navegacao" onClick={() => setAnoSelecionadoModal(a => a - 1)}>&lt;</button>
-              <h3 style={{ margin: 0, fontSize: '1.5rem' }}>{anoSelecionadoModal}</h3>
-              <button className="btn-navegacao" onClick={() => setAnoSelecionadoModal(a => a + 1)}>&gt;</button>
+        <div
+          className="modal-overlay-calendario"
+          onClick={() => setModalMesesAberto(false)}
+        >
+          <div
+            className="modal-card-meses"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-meses-navegacao-ano">
+              <button
+                type="button"
+                className="btn-navegacao-mes"
+                onClick={() => setAnoSelecionadoModal((a) => a - 1)}
+                title="Ano Anterior"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <h3 className="modal-ano-titulo">{anoSelecionadoModal}</h3>
+              <button
+                type="button"
+                className="btn-navegacao-mes"
+                onClick={() => setAnoSelecionadoModal((a) => a + 1)}
+                title="Próximo Ano"
+              >
+                <ChevronRight size={18} />
+              </button>
             </div>
-            
-            <div className="grid-meses">
+
+            <div className="grid-selecao-meses">
               {nomesDosMeses.map((nomeMes, index) => {
-                // Destaca o mês atual em que estamos hoje, se o ano do modal for o ano atual
-                const isMesAtualDoAno = dataHoje.getMonth() === index && dataHoje.getFullYear() === anoSelecionadoModal;
+                const isMesAtualHoje =
+                  dataHoje.getMonth() === index &&
+                  dataHoje.getFullYear() === anoSelecionadoModal;
+                const isMesSelecionado =
+                  mes === index && ano === anoSelecionadoModal;
+
                 return (
-                  <button 
+                  <button
                     key={index}
-                    className={`btn-mes ${isMesAtualDoAno ? 'atual' : ''}`}
+                    type="button"
+                    className={`btn-opcao-mes ${isMesSelecionado ? 'selecionado' : ''} ${
+                      isMesAtualHoje ? 'mes-atual' : ''
+                    }`}
                     onClick={() => selecionarMesNoModal(index)}
                   >
                     {nomeMes.slice(0, 3)}

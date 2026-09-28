@@ -1,22 +1,37 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-color: #f0f4f8;
-  --bg-gradient: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --border-color: rgba(255, 255, 255, 0.4);
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --danger: #ef4444;
+  /* Identidade Corporativa Auto Escola São João - Azul Marinho & Vermelho Institucional */
+  --cor-primaria: #1e293b;
+  --cor-primaria-hover: #0f172a;
+  --cor-marca: #dc2626;
+  --cor-marca-hover: #b91c1c;
+  --cor-acao: #2563eb;
+  --cor-acao-hover: #1d4ed8;
+  --cor-fundo: #f8fafc;
+  --cor-fundo-gradiente: #f8fafc;
+  --cor-superficie: #ffffff;
+  --cor-borda: #e2e8f0;
+  --cor-texto-principal: #0f172a;
+  --cor-texto-secundario: #64748b;
+
+  /* Compatibilidade com variáveis legadas do sistema */
+  --bg-color: var(--cor-fundo);
+  --bg-gradient: var(--cor-fundo-gradiente);
+  --text-primary: var(--cor-texto-principal);
+  --text-secondary: var(--cor-texto-secundario);
+  --border-color: var(--cor-borda);
+  --glass-bg: #ffffff;
+  --glass-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  --primary: var(--cor-acao);
+  --primary-hover: var(--cor-acao-hover);
+  --danger: var(--cor-marca);
   --folga-bg: #fee2e2;
   --folga-text: #991b1b;
-  --evento-bg: #bfdbfe;
-  --evento-text: #1e40af;
+  --evento-bg: #e0f2fe;
+  --evento-text: #0369a1;
   --ferias-bg: #ffedd5;
-  --ferias-text: #9a3412;
+  --ferias-text: #c2410c;
   --ferias-border: #f97316;
 }
 
