@@ -116,15 +116,14 @@ export const GestaoTiposRegistro = () => {
   };
 
   return (
-    <div className="calendario-container gestao-tipos-container" style={{ padding: '2.5rem' }}>
+    <div className="gestao-tipos-pagina">
       <CabecalhoPagina
+        icone={Tag}
         titulo="Tipos de Registro"
         subtitulo="Cadastre e personalize categorias, cores e regras de preenchimento da agenda."
-        trilha={[
-          { rotulo: 'Gestão' },
-          { rotulo: 'Tipos de Registro' }
-        ]}
       />
+
+      <div className="gestao-tipos-card-principal">
 
       {mensagemSucesso && (
         <div style={{
@@ -385,6 +384,8 @@ export const GestaoTiposRegistro = () => {
             </div>
           )}
         </div>
+      </div>
+
       </div>
 
       {/* MODAL DE CONFIRMAÇÃO DE EXCLUSÃO */}

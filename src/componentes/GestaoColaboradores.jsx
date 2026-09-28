@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserPlus, Trash2, Check, AlertCircle } from 'lucide-react';
+import { Users, UserPlus, Trash2, Check, AlertCircle } from 'lucide-react';
 import { useColaboradores } from '../hooks/useColaboradores';
 import { CabecalhoPagina } from './CabecalhoPagina';
 import { ModalConfirmacaoExclusao } from './ModalConfirmacaoExclusao';
@@ -52,15 +52,14 @@ export const GestaoColaboradores = () => {
   };
 
   return (
-    <div className="calendario-container gestao-colaboradores-container">
+    <div className="gestao-colaboradores-pagina">
       <CabecalhoPagina
+        icone={Users}
         titulo="Gestão de Colaboradores"
-        subtitulo="Adicione, remova e gerencie os membros da equipe."
-        trilha={[
-          { rotulo: 'Gestão' },
-          { rotulo: 'Colaboradores' }
-        ]}
+        subtitulo="Adicione, remova e gerencie os membros da equipe da autoescola."
       />
+
+      <div className="gestao-colaboradores-card-principal">
 
       {mensagemSucesso && (
         <div style={{
@@ -167,6 +166,8 @@ export const GestaoColaboradores = () => {
             ))}
           </div>
         )}
+      </div>
+
       </div>
 
       {/* Modal de Confirmação de Exclusão */}

@@ -1,7 +1,15 @@
-.gestao-tipos-container {
+.gestao-tipos-pagina {
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.gestao-tipos-card-principal {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 .gestao-tipos-grid {

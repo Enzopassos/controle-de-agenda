@@ -40,34 +40,48 @@
   gap: 1.5rem;
 }
 
-/* Título de Mês Interativo */
+/* Barra Superior de Controles: Navegação de Mês & Filtro de Colaborador */
+.calendario-barra-controles-mes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.navegacao-mes-controles {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+/* Título de Mês Interativo na Barra de Controles */
 .titulo-mes-seletor {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.5rem;
   cursor: pointer;
-  padding: 0.35rem 0.65rem;
+  padding: 0.4rem 0.85rem;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  transition: background-color 0.15s ease;
+  transition: all 0.15s ease;
   user-select: none;
 }
 
 .titulo-mes-seletor:hover {
   background-color: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
 .titulo-mes-texto {
-  font-size: 1.6rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  color: var(--cor-texto-principal, #0f172a);
+  color: #0f172a;
   text-transform: capitalize;
-  letter-spacing: -0.02em;
-}
-
-.titulo-mes-icone {
-  color: #64748b;
-  display: flex;
-  align-items: center;
+  letter-spacing: -0.01em;
 }
 
 /* Botões do Cabeçalho de Navegação */

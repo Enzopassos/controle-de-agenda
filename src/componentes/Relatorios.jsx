@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { TrendingUp } from 'lucide-react';
 import { useEventos } from '../hooks/useEventos';
 import { useColaboradores } from '../hooks/useColaboradores';
 import { useTiposRegistro } from '../hooks/useTiposRegistro';
@@ -61,12 +62,9 @@ export const Relatorios = () => {
   return (
     <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
       <CabecalhoPagina
-        titulo="Relatórios de Folgas"
+        icone={TrendingUp}
+        titulo="Relatórios de Ausências"
         subtitulo="Acompanhe o histórico completo de ausências e folgas da equipe."
-        trilha={[
-          { rotulo: 'Gestão' },
-          { rotulo: 'Relatórios' }
-        ]}
       />
 
       <div className="dashboard-secao" style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>

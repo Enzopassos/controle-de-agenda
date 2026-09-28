@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import {
+  LayoutDashboard,
   Users,
   CalendarDays,
   Coffee,
@@ -252,11 +253,11 @@ export const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      {/* Cabeçalho de Navegação e Contexto */}
+      {/* Cabeçalho de Navegação e Contexto Padronizado */}
       <CabecalhoPagina
+        icone={LayoutDashboard}
         titulo="Painel Operacional"
         subtitulo="Visão integrada de escalas, instrutores e agendamentos em tempo real."
-        trilha={[{ rotulo: 'Visão Geral' }]}
       />
 
       {(carregandoEventos || carregandoColab) ? (

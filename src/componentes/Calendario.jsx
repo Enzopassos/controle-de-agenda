@@ -143,37 +143,60 @@ export const Calendario = () => {
 
   return (
     <div className="calendario-wrapper">
-      {/* Cabeçalho de Navegação e Contexto da Página */}
+      {/* Cabeçalho de Navegação e Contexto da Página Padronizado */}
       <CabecalhoPagina
-        titulo={
-          <div
-            className="titulo-mes-seletor"
-            onClick={() => {
-              setAnoSelecionadoModal(ano);
-              setModalMesesAberto(true);
-            }}
-            title="Clique para alternar o mês e ano rapidamente"
-          >
-            <span className="titulo-mes-texto">
-              {nomesDosMeses[mes]} {ano}
-            </span>
-            <span className="titulo-mes-icone">
-              <CalendarDays size={20} />
-            </span>
-          </div>
-        }
+        icone={CalendarDays}
+        titulo="Calendário de Agendamentos"
         subtitulo="Gestão de escalas, aulas práticas e ausências da equipe com cores oficiais."
-        trilha={[{ rotulo: 'Calendário' }]}
         acoes={
-          <div className="calendario-acoes-topo">
+          <button
+            type="button"
+            className="btn-lancar-ferias-solido"
+            onClick={() => setModalFeriasAberto(true)}
+            title="Lançar período de férias de um colaborador"
+          >
+            <Palmtree size={16} />
+            <span>Lançar Férias</span>
+          </button>
+        }
+      />
+
+      {/* Card Principal da Grade do Calendário */}
+      <div className="calendario-card-principal">
+        {/* Barra Superior de Controles: Navegação de Mês & Filtro de Colaborador */}
+        <div className="calendario-barra-controles-mes">
+          <div className="navegacao-mes-controles">
             <button
               type="button"
-              className="btn-lancar-ferias-solido"
-              onClick={() => setModalFeriasAberto(true)}
-              title="Lançar período de férias de um colaborador"
+              className="btn-navegacao-mes"
+              onClick={irParaMesAnterior}
+              title="Mês Anterior"
+              aria-label="Mês Anterior"
             >
-              <Palmtree size={16} />
-              <span>Lançar Férias</span>
+              <ChevronLeft size={20} />
+            </button>
+
+            <div
+              className="titulo-mes-seletor"
+              onClick={() => {
+                setAnoSelecionadoModal(ano);
+                setModalMesesAberto(true);
+              }}
+              title="Clique para alternar o mês e ano rapidamente"
+            >
+              <span className="titulo-mes-texto">
+                {nomesDosMeses[mes]} {ano}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className="btn-navegacao-mes"
+              onClick={irParaProximoMes}
+              title="Próximo Mês"
+              aria-label="Próximo Mês"
+            >
+              <ChevronRight size={20} />
             </button>
 
             {mostrarBotaoHoje && (
@@ -186,38 +209,12 @@ export const Calendario = () => {
                 Mês Atual
               </button>
             )}
-
-            <button
-              type="button"
-              className="btn-navegacao-mes"
-              onClick={irParaMesAnterior}
-              title="Mês Anterior"
-              aria-label="Mês Anterior"
-            >
-              <ChevronLeft size={20} />
-            </button>
-
-            <button
-              type="button"
-              className="btn-navegacao-mes"
-              onClick={irParaProximoMes}
-              title="Próximo Mês"
-              aria-label="Próximo Mês"
-            >
-              <ChevronRight size={20} />
-            </button>
           </div>
-        }
-      />
 
-      {/* Card Principal da Grade do Calendário */}
-      <div className="calendario-card-principal">
-        {/* Barra de Ferramentas: Filtro por Colaborador & Legenda Oficial */}
-        <div className="calendario-barra-ferramentas">
           <div className="ferramenta-filtro-bloco">
             <label className="ferramenta-rotulo" htmlFor="filtro-colaborador-select">
               <Users size={16} />
-              <span>Filtrar por:</span>
+              <span>Instrutor:</span>
             </label>
             <select
               id="filtro-colaborador-select"
@@ -241,13 +238,16 @@ export const Calendario = () => {
                   setFiltroColaboradorId('');
                   setFiltroTipoChave('');
                 }}
+                title="Limpar filtros"
               >
                 Limpar filtros
               </button>
             )}
           </div>
+        </div>
 
-          {/* Legenda de Tipos e Filtro Rápido */}
+        {/* Barra de Ferramentas: Legenda Oficial e Filtro Rápido */}
+        <div className="calendario-barra-ferramentas">
           <div className="legenda-tipos-grade" role="region" aria-label="Legenda de tipos de registro">
             {tipos.map((tipo) => {
               const estaAtivo = filtroTipoChave === tipo.chave;
