@@ -5,6 +5,7 @@ import { RotaProtegida } from './componentes/RotaProtegida';
 import { Login } from './componentes/Login';
 import { Calendario } from './componentes/Calendario';
 import { MenuLateral } from './componentes/MenuLateral';
+import { BarraSuperior } from './componentes/BarraSuperior';
 import { GestaoColaboradores } from './componentes/GestaoColaboradores';
 import { GestaoTiposRegistro } from './componentes/GestaoTiposRegistro';
 import { Dashboard } from './componentes/Dashboard';
@@ -16,9 +17,12 @@ function LayoutWeb() {
   return (
     <div className="layout-principal">
       <MenuLateral />
-      <main className="conteudo-principal">
-        <Outlet />
-      </main>
+      <div className="area-conteudo-wrapper">
+        <BarraSuperior />
+        <main className="conteudo-principal">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
