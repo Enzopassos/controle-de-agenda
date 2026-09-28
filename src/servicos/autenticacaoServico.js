@@ -18,28 +18,6 @@ export const autenticacaoServico = {
     return data;
   },
 
-  cadastrar: async (email, senha, nome) => {
-    if (!email || !senha) {
-      throw new Error('Informe o e-mail e a senha.');
-    }
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password: senha,
-      options: {
-        data: {
-          nome: nome || '',
-        },
-      },
-    });
-
-    if (error) {
-      throw error;
-    }
-
-    return data;
-  },
-
   sair: async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {

@@ -56,43 +56,6 @@
   user-select: none;
 }
 
-/* Alternador de Abas (Entrar / Criar Conta) Sólido e Discreto */
-.auth-tabs-toggle {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  background-color: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 3px;
-  gap: 4px;
-}
-
-.auth-tab-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.85rem;
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: #64748b;
-  border-radius: 6px;
-  background: transparent;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-}
-
-.auth-tab-item:hover:not(.auth-tab-ativa) {
-  color: #0f172a;
-}
-
-.auth-tab-item.auth-tab-ativa {
-  background-color: #ffffff;
-  color: #0f172a;
-  border-color: #cbd5e1;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
 
 /* Textos do Cabeçalho Centralizados */
 .auth-cabecalho-texto {
@@ -282,28 +245,6 @@
   }
 }
 
-/* Link Alternador no Formulário */
-.auth-troca-modo-texto {
-  text-align: center;
-  font-size: 0.84rem;
-  color: #64748b;
-  margin-top: 0.25rem;
-}
-
-.auth-link-acao {
-  background: none;
-  border: none;
-  color: #2563eb;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0 0.25rem;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.auth-link-acao:hover {
-  color: #1d4ed8;
-}
 
 /* Rodapé Inferior */
 .auth-form-rodape {

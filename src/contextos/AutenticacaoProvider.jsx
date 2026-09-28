@@ -33,11 +33,6 @@ export const AutenticacaoProvider = ({ children }) => {
     return dados;
   }, []);
 
-  const cadastrar = useCallback(async (email, senha, nome) => {
-    const dados = await autenticacaoServico.cadastrar(email, senha, nome);
-    return dados;
-  }, []);
-
   const sair = useCallback(async () => {
     await autenticacaoServico.sair();
     setUsuario(null);
@@ -50,7 +45,6 @@ export const AutenticacaoProvider = ({ children }) => {
     carregando,
     autenticado: !!usuario,
     entrar,
-    cadastrar,
     sair,
   };
 
