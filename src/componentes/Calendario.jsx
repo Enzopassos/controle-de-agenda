@@ -214,7 +214,7 @@ export const Calendario = () => {
           <div className="ferramenta-filtro-bloco">
             <label className="ferramenta-rotulo" htmlFor="filtro-colaborador-select">
               <Users size={16} />
-              <span>Instrutor:</span>
+              <span>Funcionário:</span>
             </label>
             <select
               id="filtro-colaborador-select"
@@ -222,7 +222,7 @@ export const Calendario = () => {
               value={filtroColaboradorId}
               onChange={(e) => setFiltroColaboradorId(e.target.value)}
             >
-              <option value="">Todos os Instrutores / Equipe</option>
+              <option value="">Todos os Funcionários</option>
               {colaboradores.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.nome} {c.cargo ? `(${c.cargo})` : ''}

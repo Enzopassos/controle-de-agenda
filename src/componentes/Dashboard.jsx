@@ -257,7 +257,7 @@ export const Dashboard = () => {
       <CabecalhoPagina
         icone={LayoutDashboard}
         titulo="Painel Operacional"
-        subtitulo="Visão integrada de escalas, instrutores e agendamentos em tempo real."
+        subtitulo="Visão integrada de escalas, funcionários e agendamentos em tempo real."
       />
 
       {(carregandoEventos || carregandoColab) ? (
@@ -279,7 +279,7 @@ export const Dashboard = () => {
                 </h2>
                 <p className="banner-subtexto">
                   {ausenciasHoje.length === 0
-                    ? 'A autoescola está com operação 100% ativa e todos os instrutores escalados disponíveis.'
+                    ? 'A autoescola está com operação 100% ativa e todos os funcionários escalados disponíveis.'
                     : `Há ${ausenciasHoje.length} ausência(s) registrada(s) para a data de hoje. Confira a equipe disponível.`}
                 </p>
               </div>
@@ -351,7 +351,7 @@ export const Dashboard = () => {
                 <span className="kpi-unidade">colaboradores</span>
               </div>
               <div className="kpi-rodape-info">
-                <span>Instrutores e equipe administrativa</span>
+                <span>Funcionários cadastrados na equipe</span>
               </div>
             </article>
 

@@ -1,0 +1,363 @@
+/* ==========================================================================
+   MODAL DE CADASTRO / EDIÇÃO DE TIPO DE REGISTRO
+   Cores Sólidas: Azul Corporativo (#2563EB), Fundo Branco (#FFFFFF), Borda (#E2E8F0)
+   ========================================================================== */
+
+.modal-tipo-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 9999;
+  box-sizing: border-box;
+  animation: surgimentoOverlayTipo 0.15s ease-out;
+}
+
+@keyframes surgimentoOverlayTipo {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-tipo-box {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  animation: surgimentoModalTipo 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes surgimentoModalTipo {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.btn-fechar-modal-tipo {
+  position: absolute;
+  top: 1.15rem;
+  right: 1.15rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  z-index: 2;
+}
+
+.btn-fechar-modal-tipo:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.modal-tipo-header {
+  padding: 1.5rem 1.75rem 1.15rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-shrink: 0;
+}
+
+.modal-tipo-icone-topo {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.modal-tipo-header-textos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.modal-tipo-titulo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.modal-tipo-subtitulo {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Formulário Interno com Scroll se necessário */
+.modal-tipo-form {
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.modal-campo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.modal-campo-rotulo {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.modal-campo-rotulo .obrigatorio {
+  color: #dc2626;
+}
+
+.modal-campo-input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.modal-campo-input:focus {
+  background-color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Seletor de Cor Oficial */
+.seletor-cor-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  background-color: #f8fafc;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.seletor-cor-linha-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.seletor-cor-input-bloco {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input-cor-nativo {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+}
+
+.input-cor-nativo::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.input-cor-nativo::-webkit-color-swatch {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.input-cor-hex-texto {
+  font-family: monospace;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  width: 90px;
+  padding: 0.45rem 0.55rem;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  color: #0f172a;
+  outline: none;
+}
+
+.input-cor-hex-texto:focus {
+  border-color: #2563eb;
+}
+
+.paleta-cores-grade {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+}
+
+.btn-cor-sugerida {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.btn-cor-sugerida:hover {
+  transform: scale(1.15);
+}
+
+.btn-cor-sugerida.selecionada {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px #2563eb;
+}
+
+/* Cartões de Regras Operacionais */
+.regras-operacionais-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.regras-titulo-secao {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 0;
+}
+
+.card-regra-opcao {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.card-regra-opcao:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.card-regra-opcao.ativo {
+  background-color: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.checkbox-regra {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #2563eb;
+}
+
+.regra-info-textos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.regra-rotulo-principal {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.regra-descricao-secundaria {
+  font-size: 0.76rem;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+/* Rodapé de Ações */
+.modal-tipo-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.btn-modal-tipo-cancelar {
+  padding: 0.65rem 1.15rem;
+  background-color: transparent;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-modal-tipo-cancelar:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.btn-modal-tipo-salvar {
+  padding: 0.65rem 1.35rem;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-modal-tipo-salvar:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.btn-modal-tipo-salvar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

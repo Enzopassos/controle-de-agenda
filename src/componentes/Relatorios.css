@@ -1,0 +1,536 @@
+/* ==========================================================================
+   RELATÓRIOS OPERACIONAIS DE AUSÊNCIAS
+   Cores Sólidas: Azul Corporativo (#2563EB), Fundo Branco (#FFFFFF), Bordas (#E2E8F0)
+   ========================================================================== */
+
+.relatorios-pagina {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --------------------------------------------------------------------------
+   1. GRADE DE KPIS EXECUTIVOS DO PERÍODO
+   -------------------------------------------------------------------------- */
+.relatorios-kpis-grade {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.kpi-relatorio-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.85rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.kpi-relatorio-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+}
+
+.kpi-relatorio-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kpi-relatorio-rotulo {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kpi-relatorio-icone-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpi-relatorio-icone-box.azul {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+.kpi-relatorio-icone-box.amarelo {
+  background-color: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fef3c7;
+}
+
+.kpi-relatorio-icone-box.laranja {
+  background-color: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #ffedd5;
+}
+
+.kpi-relatorio-icone-box.verde {
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #dcfce7;
+}
+
+.kpi-relatorio-dados {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
+.kpi-relatorio-numero {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.kpi-relatorio-unidade {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+/* --------------------------------------------------------------------------
+   2. BARRA DE FILTROS E AÇÕES
+   -------------------------------------------------------------------------- */
+.relatorios-barra-filtros {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.15rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.filtros-campos-grupo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.filtro-item-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 170px;
+}
+
+.filtro-item-rotulo {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.filtro-item-select {
+  padding: 0.55rem 0.85rem;
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  color: #0f172a;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filtro-item-select:focus {
+  background-color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.relatorios-acoes-grupo {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.btn-relatorio-acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.btn-relatorio-acao:hover:not(:disabled) {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.btn-relatorio-acao.primario {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.btn-relatorio-acao.primario:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.btn-relatorio-acao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   3. TABELA GERENCIAL DE AUSÊNCIAS
+   -------------------------------------------------------------------------- */
+.relatorios-tabela-container {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.tabela-relatorios-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 560px;
+}
+
+/* Barra de rolagem personalizada */
+.tabela-relatorios-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.tabela-relatorios-scroll::-webkit-scrollbar-track {
+  background-color: #f8fafc;
+}
+
+.tabela-relatorios-scroll::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+
+.tabela-relatorios-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+.tabela-relatorios {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+.tabela-relatorios thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: #f8fafc;
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.95rem 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.tabela-relatorios tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.15s ease;
+}
+
+.tabela-relatorios tbody tr:last-child {
+  border-bottom: none;
+}
+
+.tabela-relatorios tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.tabela-relatorios tbody td {
+  padding: 1rem 1.25rem;
+  color: #334155;
+  vertical-align: middle;
+}
+
+/* Célula de Data */
+.celula-data-bloco {
+  display: flex;
+  flex-direction: column;
+}
+
+.celula-data-principal {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.celula-data-semana {
+  font-size: 0.76rem;
+  color: #64748b;
+  text-transform: capitalize;
+}
+
+/* Célula de Funcionário */
+.celula-funcionario-bloco {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.celula-funcionario-avatar {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 50%;
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  user-select: none;
+}
+
+.celula-funcionario-textos {
+  display: flex;
+  flex-direction: column;
+}
+
+.celula-funcionario-nome {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.celula-funcionario-cargo {
+  font-size: 0.76rem;
+  color: #64748b;
+}
+
+/* Célula de Categoria / Tipo */
+.badge-tipo-categoria {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.ponto-cor-badge {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Célula de Motivo / Observação */
+.celula-observacao-texto {
+  color: #475569;
+  max-width: 360px;
+  line-height: 1.4;
+}
+
+/* Badges de Status Temporal */
+.badge-status-temporal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge-status-temporal.concluida {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.badge-status-temporal.ocorrendo {
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-status-temporal.agendada {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+/* --------------------------------------------------------------------------
+   4. ESTADOS VAZIOS E DE CARREGAMENTO
+   -------------------------------------------------------------------------- */
+.relatorios-estado-vazio {
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.65rem;
+}
+
+.relatorios-icone-vazio {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.relatorios-titulo-vazio {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.relatorios-subtitulo-vazio {
+  font-size: 0.85rem;
+  color: #64748b;
+  max-width: 420px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.btn-limpar-filtros-relatorio {
+  margin-top: 0.5rem;
+  background-color: transparent;
+  border: 1px solid #cbd5e1;
+  color: #2563eb;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-limpar-filtros-relatorio:hover {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.relatorios-carregando {
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+/* --------------------------------------------------------------------------
+   5. RESPONSIVIDADE E IMPRESSÃO (@media)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .relatorios-kpis-grade {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .relatorios-kpis-grade {
+    grid-template-columns: 1fr;
+  }
+
+  .relatorios-barra-filtros {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtros-campos-grupo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtro-item-bloco {
+    min-width: 100%;
+  }
+
+  .relatorios-acoes-grupo {
+    justify-content: flex-end;
+  }
+}
+
+/* Impressão Limpa */
+@media print {
+  .menu-lateral-nav,
+  .barra-superior-container,
+  .relatorios-barra-filtros,
+  .btn-relatorio-acao,
+  .btn-limpar-filtros-relatorio {
+    display: none !important;
+  }
+
+  .layout-principal-conteudo,
+  .layout-pagina-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .relatorios-pagina {
+    width: 100% !important;
+  }
+
+  .kpi-relatorio-card {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
+
+  .relatorios-tabela-container {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
+
+  .tabela-relatorios-scroll {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}

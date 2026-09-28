@@ -22,6 +22,18 @@ export const colaboradorServico = {
     return data;
   },
 
+  atualizar: async (id, dadosAtualizados) => {
+    const { data, error } = await supabase
+      .from('agenda_colaboradores')
+      .update(dadosAtualizados)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
   remover: async (id) => {
     const { error } = await supabase
       .from('agenda_colaboradores')

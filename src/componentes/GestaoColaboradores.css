@@ -1,4 +1,7 @@
-/* Gestão de Colaboradores - Estilos Modulares e Scroll */
+/* ==========================================================================
+   GESTÃO DE COLABORADORES (LAYOUT MODERNO COM TOOLBAR, GRID & CARDS)
+   Cores Sólidas: Azul Corporativo (#2563EB), Fundo Branco (#FFFFFF), Bordas (#E2E8F0)
+   ========================================================================== */
 
 .gestao-colaboradores-pagina {
   width: 100%;
@@ -6,100 +9,386 @@
   flex-direction: column;
 }
 
-.gestao-colaboradores-card-principal {
+/* Alertas de Feedback */
+.alerta-feedback-card {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+}
+
+.alerta-feedback-card.sucesso {
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.alerta-feedback-card.sucesso .alerta-icone {
+  color: #059669;
+}
+
+.alerta-feedback-card.erro {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.alerta-feedback-card.erro .alerta-icone {
+  color: #dc2626;
+}
+
+/* --------------------------------------------------------------------------
+   BARRA DE FERRAMENTAS: BUSCA À ESQUERDA & BOTÃO ADICIONAR À DIREITA
+   -------------------------------------------------------------------------- */
+.barra-ferramentas-colaboradores {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 2rem;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  border-radius: 12px;
+  padding: 0.85rem 1.25rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
 }
 
-.painel-adicionar-colaborador {
-  background: #f8fafc;
-  padding: 1.5rem;
-  border-radius: 16px;
-  margin-bottom: 2rem;
-  border: 1px solid #e2e8f0;
-}
-
-.painel-adicionar-titulo {
-  margin-bottom: 1rem;
-  color: var(--text-primary);
-  font-size: 1.1rem;
+.ferramenta-busca-lado-esquerdo {
   display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  max-width: 520px;
+}
+
+.campo-pesquisa-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.icone-lupa-pesquisa {
+  position: absolute;
+  left: 0.85rem;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.input-pesquisa-colaboradores {
+  width: 100%;
+  padding: 0.65rem 2.2rem 0.65rem 2.4rem;
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.input-pesquisa-colaboradores:focus {
+  background-color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn-limpar-pesquisa {
+  position: absolute;
+  right: 0.65rem;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-limpar-pesquisa:hover {
+  color: #0f172a;
+  background-color: #e2e8f0;
+}
+
+/* Botão Azul Sólido Adicionar */
+.btn-adicionar-colaborador-solido {
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-weight: 700;
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
-.form-adicionar-colaborador {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-end;
-  flex-wrap: wrap;
+.btn-adicionar-colaborador-solido:hover {
+  background-color: #1d4ed8;
 }
 
-.secao-equipe-titulo {
-  margin-bottom: 1rem;
-  color: var(--text-primary);
-  font-size: 1.1rem;
-  font-weight: 700;
+/* --------------------------------------------------------------------------
+   GRADE (GRID) DE CARDS DE COLABORADORES
+   -------------------------------------------------------------------------- */
+.secao-grade-colaboradores {
+  width: 100%;
 }
 
-/* Lista de Colaboradores com Scroll e Overflow Controlado */
-.lista-colaboradores-scroll {
+.grid-cards-colaboradores {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Card Individual */
+.card-colaborador-grid {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  max-height: calc(100vh - 380px);
-  min-height: 220px;
-  overflow-y: auto;
-  padding-right: 6px;
-}
-
-.lista-colaboradores-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.lista-colaboradores-scroll::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 6px;
-}
-
-.lista-colaboradores-scroll::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 6px;
-}
-
-.lista-colaboradores-scroll::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-.card-colaborador-item {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
 }
 
-.card-colaborador-item:hover {
+.card-colaborador-grid:hover {
+  transform: translateY(-2px);
   border-color: #cbd5e1;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
 }
 
-.colaborador-nome {
-  font-weight: 600;
-  color: var(--text-primary);
+.card-colaborador-corpo {
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.card-colaborador-avatar {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.card-colaborador-dados {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.card-colaborador-nome {
   font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
 }
 
-.colaborador-cargo {
+.card-colaborador-cargo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #475569;
+  background-color: #f1f5f9;
+  padding: 0.2rem 0.55rem;
+  border-radius: 5px;
+  width: fit-content;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Rodapé do Card */
+.card-colaborador-rodape {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid #f1f5f9;
+  background-color: #f8fafc;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.btn-card-acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-card-acao.editar {
+  color: #2563eb;
+}
+
+.btn-card-acao.editar:hover {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.btn-card-acao.excluir {
+  color: #64748b;
+}
+
+.btn-card-acao.excluir:hover {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+/* --------------------------------------------------------------------------
+   ESTADOS VAZIOS & CARREGAMENTO
+   -------------------------------------------------------------------------- */
+.estado-carregando-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.estado-vazio-colaboradores {
+  background-color: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 3.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.65rem;
+  box-sizing: border-box;
+}
+
+.circulo-icone-vazio {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.titulo-vazio {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.subtitulo-vazio {
   font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin-top: 4px;
+  color: #64748b;
+  max-width: 400px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.btn-limpar-filtro-vazio {
+  margin-top: 0.5rem;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #2563eb;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-limpar-filtro-vazio:hover {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.btn-adicionar-primeiro-colaborador {
+  margin-top: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btn-adicionar-primeiro-colaborador:hover {
+  background-color: #1d4ed8;
+}
+
+/* Responsividade Mobile (< 768px) */
+@media (max-width: 768px) {
+  .barra-ferramentas-colaboradores {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+
+  .ferramenta-busca-lado-esquerdo {
+    max-width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-adicionar-colaborador-solido {
+    justify-content: center;
+  }
+
+  .grid-cards-colaboradores {
+    grid-template-columns: 1fr;
+  }
 }

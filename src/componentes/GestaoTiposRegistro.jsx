@@ -1,23 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Tag,
   Plus,
   Pencil,
   Trash2,
-  Check,
-  RotateCcw,
-  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  Search,
+  X,
   Users,
-  Building
+  CalendarCheck
 } from 'lucide-react';
-import { CabecalhoPagina } from './CabecalhoPagina';
-import { ModalConfirmacaoExclusao } from './ModalConfirmacaoExclusao';
 import { useTiposRegistro } from '../hooks/useTiposRegistro';
-import {
-  PALETA_CORES_SUGERIDAS,
-  hexParaRgba,
-  gerarChaveSlug
-} from '../utils/corUtils';
+import { CabecalhoPagina } from './CabecalhoPagina';
+import { ModalTipoRegistro } from './ModalTipoRegistro';
+import { ModalConfirmacaoExclusao } from './ModalConfirmacaoExclusao';
+import { gerarChaveSlug } from '../utils/corUtils';
 import './GestaoTiposRegistro.css';
 
 export const GestaoTiposRegistro = () => {
@@ -26,73 +24,79 @@ export const GestaoTiposRegistro = () => {
     carregando,
     adicionarTipo,
     atualizarTipo,
-    removerTipo
+    removerTipo,
   } = useTiposRegistro();
 
-  // Estados do Formulário
-  const [idEmEdicao, setIdEmEdicao] = useState(null);
-  const [nome, setNome] = useState('');
-  const [corHex, setCorHex] = useState('#10b981');
-  const [exigeColaborador, setExigeColaborador] = useState(false);
-  const [computaAusencia, setComputaAusencia] = useState(false);
+  // Estados do Modal de Cadastro / Edição
+  const [modalAberto, setModalAberto] = useState(false);
+  const [tipoParaEditar, setTipoParaEditar] = useState(null);
   const [salvando, setSalvando] = useState(false);
+
+  // Estados de Busca e Feedback
+  const [termoBusca, setTermoBusca] = useState('');
   const [mensagemSucesso, setMensagemSucesso] = useState('');
   const [mensagemErro, setMensagemErro] = useState('');
 
-  // Estado do Modal de Confirmação de Exclusão
+  // Modal de Exclusão
   const [tipoParaExcluir, setTipoParaExcluir] = useState(null);
 
-  const limparFormulario = () => {
-    setIdEmEdicao(null);
-    setNome('');
-    setCorHex('#10b981');
-    setExigeColaborador(false);
-    setComputaAusencia(false);
-    setMensagemErro('');
+  // Filtro de categorias em tempo real
+  const tiposFiltrados = useMemo(() => {
+    if (!termoBusca.trim()) return tipos;
+    const buscaMinuscula = termoBusca.trim().toLowerCase();
+    return tipos.filter((t) => {
+      const nomeMatch = t.nome?.toLowerCase().includes(buscaMinuscula);
+      const chaveMatch = t.chave?.toLowerCase().includes(buscaMinuscula);
+      return nomeMatch || chaveMatch;
+    });
+  }, [tipos, termoBusca]);
+
+  const abrirModalCriacao = () => {
+    setTipoParaEditar(null);
+    setModalAberto(true);
   };
 
-  const iniciarEdicao = (tipo) => {
-    setIdEmEdicao(tipo.id);
-    setNome(tipo.nome);
-    setCorHex(tipo.cor_hex || '#3b82f6');
-    setExigeColaborador(Boolean(tipo.exige_colaborador));
-    setComputaAusencia(Boolean(tipo.computa_ausencia));
-    setMensagemErro('');
-    setMensagemSucesso('');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const abrirModalEdicao = (tipo) => {
+    setTipoParaEditar(tipo);
+    setModalAberto(true);
   };
 
-  const lidarComSalvar = async (e) => {
-    e.preventDefault();
-    if (!nome.trim()) return;
+  const fecharModal = () => {
+    if (!salvando) {
+      setModalAberto(false);
+      setTipoParaEditar(null);
+    }
+  };
 
+  const lidarComSalvarTipo = async (dados) => {
     setSalvando(true);
     setMensagemErro('');
     setMensagemSucesso('');
 
     try {
-      if (idEmEdicao) {
-        await atualizarTipo(idEmEdicao, {
-          nome: nome.trim(),
-          cor_hex: corHex,
-          exige_colaborador: exigeColaborador,
-          computa_ausencia: computaAusencia
+      if (tipoParaEditar) {
+        await atualizarTipo(tipoParaEditar.id, {
+          nome: dados.nome,
+          cor_hex: dados.cor_hex,
+          exige_colaborador: dados.exige_colaborador,
+          computa_ausencia: dados.computa_ausencia,
         });
-        setMensagemSucesso(`Tipo "${nome}" atualizado com sucesso!`);
+        setMensagemSucesso(`Categoria "${dados.nome}" atualizada com sucesso!`);
       } else {
         await adicionarTipo({
-          nome: nome.trim(),
-          chave: gerarChaveSlug(nome),
-          cor_hex: corHex,
-          exige_colaborador: exigeColaborador,
-          computa_ausencia: computaAusencia
+          nome: dados.nome,
+          chave: gerarChaveSlug(dados.nome),
+          cor_hex: dados.cor_hex,
+          exige_colaborador: dados.exige_colaborador,
+          computa_ausencia: dados.computa_ausencia,
         });
-        setMensagemSucesso(`Tipo "${nome}" cadastrado com sucesso!`);
+        setMensagemSucesso(`Categoria "${dados.nome}" cadastrada com sucesso!`);
       }
-      limparFormulario();
+
+      fecharModal();
       setTimeout(() => setMensagemSucesso(''), 4000);
     } catch (erro) {
-      setMensagemErro(erro.message || 'Erro ao salvar tipo de registro.');
+      setMensagemErro(erro.message || 'Falha ao salvar o tipo de registro.');
     } finally {
       setSalvando(false);
     }
@@ -103,11 +107,8 @@ export const GestaoTiposRegistro = () => {
 
     try {
       await removerTipo(tipoParaExcluir.id);
-      if (idEmEdicao === tipoParaExcluir.id) {
-        limparFormulario();
-      }
+      setMensagemSucesso(`Categoria "${tipoParaExcluir.nome}" removida com sucesso.`);
       setTipoParaExcluir(null);
-      setMensagemSucesso('Tipo de registro removido com sucesso!');
       setTimeout(() => setMensagemSucesso(''), 4000);
     } catch (erro) {
       setMensagemErro(erro.message || 'Erro ao remover tipo de registro.');
@@ -117,278 +118,198 @@ export const GestaoTiposRegistro = () => {
 
   return (
     <div className="gestao-tipos-pagina">
+      {/* 1. Cabeçalho Padronizado da Página */}
       <CabecalhoPagina
         icone={Tag}
         titulo="Tipos de Registro"
         subtitulo="Cadastre e personalize categorias, cores e regras de preenchimento da agenda."
       />
 
-      <div className="gestao-tipos-card-principal">
-
+      {/* 2. Alertas de Sucesso e Erro */}
       {mensagemSucesso && (
-        <div style={{
-          background: '#dcfce7',
-          color: '#166534',
-          padding: '0.85rem 1.25rem',
-          borderRadius: '12px',
-          border: '1px solid #bbf7d0',
-          marginBottom: '1.5rem',
-          fontWeight: '500',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }}>
-          <Check size={18} />
-          {mensagemSucesso}
+        <div className="alerta-feedback-card sucesso" role="status">
+          <CheckCircle2 size={18} className="alerta-icone" />
+          <span>{mensagemSucesso}</span>
         </div>
       )}
 
       {mensagemErro && (
-        <div style={{
-          background: '#fee2e2',
-          color: '#991b1b',
-          padding: '0.85rem 1.25rem',
-          borderRadius: '12px',
-          border: '1px solid #fecaca',
-          marginBottom: '1.5rem',
-          fontWeight: '500'
-        }}>
-          {mensagemErro}
+        <div className="alerta-feedback-card erro" role="alert">
+          <AlertCircle size={18} className="alerta-icone" />
+          <span>{mensagemErro}</span>
         </div>
       )}
 
-      <div className="gestao-tipos-grid">
-        {/* COLUNA ESQUERDA: FORMULÁRIO DE CADASTRO / EDIÇÃO */}
-        <div className="painel-formulario-tipo">
-          <div className="painel-formulario-titulo">
-            {idEmEdicao ? <Pencil size={18} /> : <Plus size={18} />}
-            <span>{idEmEdicao ? 'Editar Tipo' : 'Novo Tipo de Registro'}</span>
-          </div>
-          <p className="painel-formulario-subtitulo">
-            {idEmEdicao
-              ? 'Altere a cor ou as opções desta categoria.'
-              : 'Defina o nome, a cor visual e as regras de associação.'}
-          </p>
-
-          <form onSubmit={lidarComSalvar}>
-            <div className="form-grupo">
-              <label>Nome da Categoria</label>
-              <input
-                type="text"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                placeholder="Ex: Feriado, Atestado Médico..."
-                required
-              />
-            </div>
-
-            <div className="form-grupo">
-              <label>Cor de Destaque Visual</label>
-              <div className="seletor-cor-container">
-                <div className="seletor-cor-input-wrapper">
-                  <input
-                    type="color"
-                    className="input-cor-nativo"
-                    value={corHex}
-                    onChange={(e) => setCorHex(e.target.value)}
-                    title="Selecione uma cor personalizada"
-                  />
-                  <input
-                    type="text"
-                    className="input-cor-hex-texto"
-                    value={corHex}
-                    onChange={(e) => setCorHex(e.target.value)}
-                    maxLength={7}
-                    style={{ width: '110px' }}
-                  />
-                </div>
-
-                <div className="paleta-cores-sugeridas">
-                  {PALETA_CORES_SUGERIDAS.map((cor) => (
-                    <button
-                      key={cor.hex}
-                      type="button"
-                      className={`btn-paleta-cor ${corHex.toLowerCase() === cor.hex.toLowerCase() ? 'selecionada' : ''}`}
-                      style={{ backgroundColor: cor.hex }}
-                      onClick={() => setCorHex(cor.hex)}
-                      title={cor.rotulo}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* OPÇÕES BOOLEANAS AVANÇADAS */}
-            <div className="opcoes-checkbox-grupo">
-              <label className="checkbox-item-personalizado">
-                <input
-                  type="checkbox"
-                  checked={exigeColaborador}
-                  onChange={(e) => setExigeColaborador(e.target.checked)}
-                />
-                <div className="checkbox-item-textos">
-                  <span className="checkbox-titulo">Exige Colaborador</span>
-                  <span className="checkbox-descricao">
-                    Marque para ausências individuais (ex: folga, atestado). Feriados e eventos gerais devem ficar desmarcados.
-                  </span>
-                </div>
-              </label>
-
-              <label className="checkbox-item-personalizado">
-                <input
-                  type="checkbox"
-                  checked={computaAusencia}
-                  onChange={(e) => setComputaAusencia(e.target.checked)}
-                />
-                <div className="checkbox-item-textos">
-                  <span className="checkbox-titulo">Conta como Ausência</span>
-                  <span className="checkbox-descricao">
-                    Marque se este registro representa ausência de expediente no relatório e nas métricas da equipe.
-                  </span>
-                </div>
-              </label>
-            </div>
-
-            {/* PRÉVIA VISUAL EM TEMPO REAL */}
-            <div className="caixa-previa-tipo">
-              <div className="caixa-previa-label">Prévia no Calendário</div>
-              <div
-                style={{
-                  padding: '0.5rem 0.75rem',
-                  borderRadius: '8px',
-                  backgroundColor: hexParaRgba(corHex, 0.15),
-                  color: corHex,
-                  borderLeft: `4px solid ${corHex}`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '2px',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-                }}
-              >
-                <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>
-                  {exigeColaborador ? 'João da Silva' : nome || 'Nome do Tipo'}
-                </div>
-                <div style={{ fontSize: '0.72rem', opacity: 0.9 }}>
-                  {exigeColaborador ? (nome || 'Motivo') : 'Evento da Autoescola'}
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
-              {idEmEdicao && (
-                <button
-                  type="button"
-                  className="btn btn-cancelar"
-                  onClick={limparFormulario}
-                  style={{ flex: 1 }}
-                >
-                  <RotateCcw size={16} style={{ marginRight: '4px' }} />
-                  Cancelar
-                </button>
-              )}
+      {/* 3. Barra de Ferramentas Superior: Busca à Esquerda & Botão Criar à Direita */}
+      <section className="barra-ferramentas-tipos" aria-label="Ações e Pesquisa">
+        <div className="ferramenta-busca-lado-esquerdo">
+          <div className="campo-pesquisa-container">
+            <Search size={16} className="icone-lupa-pesquisa" aria-hidden="true" />
+            <input
+              type="text"
+              className="input-pesquisa-tipos"
+              placeholder="Buscar categoria por nome ou código..."
+              value={termoBusca}
+              onChange={(e) => setTermoBusca(e.target.value)}
+              aria-label="Buscar categoria"
+            />
+            {termoBusca && (
               <button
-                type="submit"
-                className="btn btn-salvar"
-                style={{ flex: 2 }}
-                disabled={salvando || !nome.trim()}
+                type="button"
+                className="btn-limpar-pesquisa"
+                onClick={() => setTermoBusca('')}
+                title="Limpar pesquisa"
+                aria-label="Limpar pesquisa"
               >
-                {salvando ? 'Salvando...' : idEmEdicao ? 'Salvar Alterações' : 'Criar Tipo'}
+                <X size={14} />
               </button>
-            </div>
-          </form>
+            )}
+          </div>
         </div>
 
-        {/* COLUNA DIREITA: LISTAGEM DOS TIPOS */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-            <h4 style={{ color: 'var(--text-primary)', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Tag size={20} color="var(--primary)" />
-              <span>Categorias Cadastradas ({tipos.length})</span>
-            </h4>
-          </div>
+        <button
+          type="button"
+          className="btn-adicionar-tipo-solido"
+          onClick={abrirModalCriacao}
+          title="Cadastrar nova categoria de agendamento"
+        >
+          <Plus size={17} />
+          <span>Adicionar Tipo de Registro</span>
+        </button>
+      </section>
 
-          {carregando ? (
-            <p style={{ color: 'var(--text-secondary)' }}>Carregando tipos de registro...</p>
-          ) : tipos.length === 0 ? (
-            <div style={{
-              background: 'white',
-              padding: '2.5rem',
-              borderRadius: '16px',
-              textAlign: 'center',
-              border: '1px solid #e2e8f0',
-              color: 'var(--text-secondary)'
-            }}>
-              <Sparkles size={32} style={{ marginBottom: '0.75rem', color: '#94a3b8' }} />
-              <p>Nenhum tipo cadastrado ainda. Crie o primeiro formulário ao lado!</p>
+      {/* 4. Grade de Cards de Tipos de Registro */}
+      <main className="secao-grade-tipos" aria-label="Lista de Tipos de Registro">
+        {carregando ? (
+          <div className="estado-carregando-card">
+            <p>Carregando categorias e cores do sistema...</p>
+          </div>
+        ) : tiposFiltrados.length === 0 ? (
+          <div className="estado-vazio-tipos">
+            <div className="circulo-icone-vazio">
+              <Tag size={32} />
             </div>
-          ) : (
-            <div className="lista-tipos-cards">
-              {tipos.map((tipo) => (
-                <div key={tipo.id || tipo.chave} className="card-tipo-item">
-                  <div className="card-tipo-info">
-                    <div
-                      className="card-tipo-barra-cor"
-                      style={{ backgroundColor: tipo.cor_hex || '#3b82f6' }}
-                    />
-                    <div className="card-tipo-dados">
-                      <div className="card-tipo-nome">
-                        <span>{tipo.nome}</span>
-                        <span className="card-tipo-chave">#{tipo.chave}</span>
+            <h3 className="titulo-vazio">
+              {termoBusca
+                ? `Nenhum tipo de registro encontrado para "${termoBusca}".`
+                : 'Nenhuma categoria cadastrada no sistema ainda.'}
+            </h3>
+            <p className="subtitulo-vazio">
+              {termoBusca
+                ? 'Verifique a ortografia digitada ou limpe o campo de busca.'
+                : 'Cadastre categorias com cores personalizadas para organizar o calendário.'}
+            </p>
+            {termoBusca ? (
+              <button
+                type="button"
+                className="btn-limpar-filtro-vazio"
+                onClick={() => setTermoBusca('')}
+              >
+                Limpar busca
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn-adicionar-primeiro-tipo"
+                onClick={abrirModalCriacao}
+              >
+                <Plus size={16} />
+                <span>Adicionar Primeiro Tipo</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="grid-cards-tipos">
+            {tiposFiltrados.map((tipo) => {
+              const corOficial = tipo.cor_hex || '#3b82f6';
+
+              return (
+                <article
+                  key={tipo.id || tipo.chave}
+                  className="card-tipo-grid"
+                  style={{ borderTop: `4px solid ${corOficial}` }}
+                >
+                  <div className="card-tipo-corpo">
+                    {/* Topo do Card: Ponto de Cor e Nome em destaque total */}
+                    <div className="card-tipo-cabecalho">
+                      <div
+                        className="card-tipo-ponto-cor"
+                        style={{ backgroundColor: corOficial }}
+                        aria-hidden="true"
+                      />
+                      <h3 className="card-tipo-nome" title={tipo.nome}>
+                        {tipo.nome}
+                      </h3>
+                    </div>
+
+                    {/* Tags das Regras Operacionais em linha */}
+                    <div className="card-tipo-regras-bloco">
+                      <div
+                        className={`chip-regra-status ${tipo.exige_colaborador ? 'ativo' : 'inativo'}`}
+                        title={tipo.exige_colaborador ? 'Exige selecionar um funcionário' : 'Não exige funcionário'}
+                      >
+                        <Users size={13} />
+                        <span>
+                          {tipo.exige_colaborador ? 'Exige Funcionário' : 'Sem vínculo'}
+                        </span>
                       </div>
 
-                      <div className="card-tipo-tags">
-                        {tipo.exige_colaborador ? (
-                          <span className="tag-recurso-tipo colaborador" title="Requer selecionar um colaborador da equipe">
-                            <Users size={12} style={{ display: 'inline', marginRight: 3 }} />
-                            Individual
-                          </span>
-                        ) : (
-                          <span className="tag-recurso-tipo geral" title="Aplica-se a toda a autoescola">
-                            <Building size={12} style={{ display: 'inline', marginRight: 3 }} />
-                            Geral / Empresa
-                          </span>
-                        )}
-
-                        {tipo.computa_ausencia && (
-                          <span className="tag-recurso-tipo ausencia" title="Entra nos relatórios de folgas/ausências">
-                            Ausência
-                          </span>
-                        )}
+                      <div
+                        className={`chip-regra-status ${tipo.computa_ausencia ? 'ausencia' : 'regular'}`}
+                        title={tipo.computa_ausencia ? 'Computa ausência da equipe' : 'Atividade regular na agenda'}
+                      >
+                        <CalendarCheck size={13} />
+                        <span>
+                          {tipo.computa_ausencia ? 'Computa Ausência' : 'Atividade Regular'}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="card-tipo-acoes">
+                  {/* Rodapé do Card: Ações de Editar e Excluir */}
+                  <div className="card-tipo-rodape">
                     <button
                       type="button"
-                      className="btn-acao-tipo editar"
-                      onClick={() => iniciarEdicao(tipo)}
-                      title="Editar este tipo"
+                      className="btn-card-acao editar"
+                      onClick={() => abrirModalEdicao(tipo)}
+                      title={`Editar categoria ${tipo.nome}`}
+                      aria-label={`Editar ${tipo.nome}`}
                     >
-                      <Pencil size={15} />
+                      <Pencil size={14} />
                       <span>Editar</span>
                     </button>
 
                     <button
                       type="button"
-                      className="btn-acao-tipo excluir"
+                      className="btn-card-acao excluir"
                       onClick={() => setTipoParaExcluir(tipo)}
-                      title="Excluir este tipo"
+                      title={`Excluir categoria ${tipo.nome}`}
+                      aria-label={`Excluir ${tipo.nome}`}
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={14} />
                       <span>Excluir</span>
                     </button>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </main>
 
-      </div>
+      {/* 5. Modal de Cadastro e Edição de Tipos de Registro */}
+      {modalAberto && (
+        <ModalTipoRegistro
+          key={tipoParaEditar?.id || 'novo'}
+          aberto={modalAberto}
+          tipoParaEditar={tipoParaEditar}
+          aoSalvar={lidarComSalvarTipo}
+          aoFechar={fecharModal}
+          salvando={salvando}
+        />
+      )}
 
-      {/* MODAL DE CONFIRMAÇÃO DE EXCLUSÃO */}
+      {/* 6. Modal de Confirmação de Exclusão Segura */}
       {tipoParaExcluir && (
         <ModalConfirmacaoExclusao
           titulo="Excluir Tipo de Registro?"

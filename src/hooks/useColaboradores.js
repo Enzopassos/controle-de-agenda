@@ -48,6 +48,17 @@ export const useColaboradores = () => {
       await carregar();
     } catch (erro) {
       console.error('Erro ao adicionar colaborador', erro);
+      throw erro;
+    }
+  };
+
+  const atualizar = async (id, dados) => {
+    try {
+      await colaboradorServico.atualizar(id, dados);
+      await carregar();
+    } catch (erro) {
+      console.error('Erro ao atualizar colaborador', erro);
+      throw erro;
     }
   };
 
@@ -57,8 +68,9 @@ export const useColaboradores = () => {
       await carregar();
     } catch (erro) {
       console.error('Erro ao remover colaborador', erro);
+      throw erro;
     }
   };
 
-  return { colaboradores: colaboradores || [], carregando, adicionar, remover };
+  return { colaboradores: colaboradores || [], carregando, adicionar, atualizar, remover };
 };
