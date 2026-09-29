@@ -8,7 +8,6 @@ import {
   PieChart,
   BarChart3,
   Clock,
-  Award,
   Inbox,
   CheckCircle2,
   CalendarCheck,
@@ -123,23 +122,40 @@ export const Dashboard = () => {
     }).length;
   }, [eventosDoMesVigente, resolverInformacoesTipo]);
 
-  // Ranking de ausências por colaborador no mês vigente
-  const rankingFolgas = useMemo(() => {
+  // Controle de folgas por funcionário no mês vigente (excluindo férias, com badge indicativo)
+  const escalaFolgasMes = useMemo(() => {
     return colaboradores
       .map((colaborador) => {
-        const totalFolgas = eventos.filter(
+        // Folgas de escala no mês (excluindo férias)
+        const totalFolgas = eventosDoMesVigente.filter(
           (e) =>
-            verificarSeComputaAusencia(e) &&
+            !ehEventoFerias(e) &&
             e.colaborador_id === colaborador.id &&
-            e.data?.startsWith(prefixoMesAtual)
+            resolverInformacoesTipo(e.tipo, e).chave === 'folga'
         ).length;
-        return { ...colaborador, totalFolgas };
-      })
-      .filter((c) => c.totalFolgas > 0)
-      .sort((a, b) => b.totalFolgas - a.totalFolgas);
-  }, [colaboradores, eventos, verificarSeComputaAusencia, prefixoMesAtual]);
 
-  const maxFolgasRanking = rankingFolgas.length > 0 ? rankingFolgas[0].totalFolgas : 1;
+        // Indicativo se o funcionário possui período de férias no mês
+        const temFeriasMes = eventosDoMesVigente.some(
+          (e) => ehEventoFerias(e) && e.colaborador_id === colaborador.id
+        );
+
+        return {
+          ...colaborador,
+          totalFolgas,
+          temFeriasMes,
+        };
+      })
+      .filter((c) => c.totalFolgas > 0 || c.temFeriasMes)
+      .sort((a, b) => {
+        if (b.totalFolgas !== a.totalFolgas) return b.totalFolgas - a.totalFolgas;
+        return a.nome.localeCompare(b.nome);
+      });
+  }, [colaboradores, eventosDoMesVigente, resolverInformacoesTipo]);
+
+  const maxFolgasMes = useMemo(() => {
+    const max = Math.max(1, ...escalaFolgasMes.map((c) => c.totalFolgas));
+    return max > 0 ? max : 1;
+  }, [escalaFolgasMes]);
 
   // Taxa de disponibilidade operacional hoje
   const totalColaboradores = colaboradores.length;
@@ -639,56 +655,69 @@ export const Dashboard = () => {
               )}
             </article>
 
-            {/* Coluna 2: Monitoramento & Ranking de Folgas do Mês Vigente (100% Sólido) */}
+            {/* Coluna 2: Controle de Folgas do Mês Vigente (Operacional e sem pódio) */}
             <article className="card-operacional">
               <div className="card-operacional-cabecalho">
                 <div className="card-operacional-titulo-box">
-                  <Award size={18} style={{ color: '#0f172a' }} />
-                  <h3 className="card-operacional-titulo">Monitoramento de Escalas ({nomeMesAtual})</h3>
+                  <CalendarCheck size={18} style={{ color: '#0f172a' }} />
+                  <h3 className="card-operacional-titulo">Controle de Folgas ({nomeMesAtual})</h3>
                 </div>
                 <span className="card-operacional-badge-qtd">
-                  {rankingFolgas.length} {rankingFolgas.length === 1 ? 'funcionário' : 'funcionários'}
+                  {escalaFolgasMes.length} {escalaFolgasMes.length === 1 ? 'funcionário' : 'funcionários'}
                 </span>
               </div>
 
-              {rankingFolgas.length === 0 ? (
+              {escalaFolgasMes.length === 0 ? (
                 <div className="dashboard-vazio-box">
                   <Inbox size={32} />
-                  <p>Nenhuma folga ou ausência registrada em {nomeMesAtual}.</p>
+                  <p>Nenhuma folga ou escala registrada em {nomeMesAtual}.</p>
                 </div>
               ) : (
                 <div className="ranking-folgas-lista">
-                  {rankingFolgas.map((item, index) => {
-                    const porcentagem = Math.max(8, Math.round((item.totalFolgas / maxFolgasRanking) * 100));
-                    const classePosicao =
-                      index === 0 ? 'primeiro' : index === 1 ? 'segundo' : index === 2 ? 'terceiro' : '';
+                  {escalaFolgasMes.map((item) => {
+                    const porcentagem =
+                      item.totalFolgas > 0
+                        ? Math.max(8, Math.round((item.totalFolgas / maxFolgasMes) * 100))
+                        : 0;
 
                     return (
                       <div key={item.id} className="ranking-item-colab">
                         <div className="ranking-item-topo">
                           <div className="ranking-colab-bloco">
-                            <span className={`ranking-posicao-badge ${classePosicao}`}>
-                              {index + 1}º
+                            <span className="colab-avatar-mini" title={item.nome}>
+                              {obterIniciais(item.nome)}
                             </span>
-                            <div>
-                              <span className="ranking-colab-nome">{item.nome}</span>
+                            <div className="colab-info-bloco">
+                              <div className="colab-nome-badge-linha">
+                                <span className="ranking-colab-nome">{item.nome}</span>
+                                {item.temFeriasMes && (
+                                  <span
+                                    className="tag-ferias-mini"
+                                    title="Colaborador com período de férias neste mês"
+                                  >
+                                    Férias
+                                  </span>
+                                )}
+                              </div>
                               {item.cargo && (
-                                <span className="ranking-colab-cargo"> — {item.cargo}</span>
+                                <span className="ranking-colab-cargo">{item.cargo}</span>
                               )}
                             </div>
                           </div>
                           <span className="ranking-dias-badge">
-                            {item.totalFolgas} {item.totalFolgas === 1 ? 'dia' : 'dias'}
+                            {item.totalFolgas} {item.totalFolgas === 1 ? 'folga' : 'folgas'}
                           </span>
                         </div>
 
-                        <div className="ranking-trilho-progresso">
-                          {/* Barra de progresso 100% cor sólida, sem degradê */}
-                          <div
-                            className="ranking-barra-preenchimento"
-                            style={{ width: `${porcentagem}%` }}
-                          />
-                        </div>
+                        {item.totalFolgas > 0 && (
+                          <div className="ranking-trilho-progresso">
+                            {/* Barra de progresso 100% cor sólida, sem degradê */}
+                            <div
+                              className="ranking-barra-preenchimento"
+                              style={{ width: `${porcentagem}%` }}
+                            />
+                          </div>
+                        )}
                       </div>
                     );
                   })}
