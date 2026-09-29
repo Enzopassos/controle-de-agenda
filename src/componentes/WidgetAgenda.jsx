@@ -61,6 +61,33 @@ export const WidgetAgenda = () => {
   const anoNavegacao = dataNavegacao.getFullYear();
   const mesNavegacao = dataNavegacao.getMonth();
   const diasDoMes = obterDiasDoMes(anoNavegacao, mesNavegacao);
+  const ehMesAtual =
+    anoNavegacao === dataHoje.getFullYear() &&
+    mesNavegacao === dataHoje.getMonth();
+
+  // Resolver informações e cor cadastrada do tipo de registro com prioridade de férias
+  const resolverInformacoesTipo = (tipoChave, evento) => {
+    const isFerias = ehEventoFerias(evento) || tipoChave === 'ferias';
+    const chaveBusca = isFerias ? 'ferias' : (tipoChave || 'evento');
+    const tipoCadastrado = obterTipoPorChave(chaveBusca);
+
+    const nome =
+      tipoCadastrado?.nome ||
+      (isFerias ? 'Férias' : chaveBusca.charAt(0).toUpperCase() + chaveBusca.slice(1));
+    const cor =
+      tipoCadastrado?.cor_hex ||
+      (isFerias ? '#f97316' : chaveBusca === 'folga' ? '#ef4444' : '#2563eb');
+    const computaAusencia =
+      isFerias || Boolean(tipoCadastrado?.computa_ausencia) || chaveBusca === 'folga';
+
+    return {
+      chave: chaveBusca,
+      nome,
+      cor,
+      computaAusencia,
+      isFerias,
+    };
+  };
 
   // Navegação entre meses
   const irParaMesAnterior = () => {
@@ -176,10 +203,6 @@ export const WidgetAgenda = () => {
             <div className="widget-logo-container" data-tauri-drag-region>
               <img src={logoAutoEscola} alt="Auto Escola São João" className="widget-logo-img" data-tauri-drag-region />
             </div>
-            <div className="widget-titulos" data-tauri-drag-region>
-              <span className="widget-titulo-principal" data-tauri-drag-region>Auto Escola São João</span>
-              <span className="widget-subtitulo-principal" data-tauri-drag-region>Agenda da Equipe</span>
-            </div>
           </div>
 
           <div className="widget-acoes-topo">
@@ -278,16 +301,16 @@ export const WidgetAgenda = () => {
               </div>
             ) : (
               eventosDoDiaSelecionado.map((evento) => {
-                const isFerias = ehEventoFerias(evento);
-                const tipoInfo = obterTipoPorChave(evento.tipo);
+                const info = resolverInformacoesTipo(evento.tipo, evento);
+                const isFerias = info.isFerias;
                 const temColaborador = Boolean(evento.colaborador?.nome);
-                const classeCss = isFerias ? 'ferias' : (tipoInfo?.chave || evento.tipo);
+                const classeCss = isFerias ? 'ferias' : info.chave;
 
-                const estiloItem = tipoInfo?.cor_hex ? {
-                  borderLeft: `3px solid ${tipoInfo.cor_hex}`,
-                  backgroundColor: hexParaRgba(tipoInfo.cor_hex, 0.12),
+                const estiloItem = {
+                  borderLeft: `3px solid ${info.cor}`,
+                  backgroundColor: hexParaRgba(info.cor, 0.12),
                   color: '#1e293b'
-                } : undefined;
+                };
 
                 return (
                   <div
@@ -299,13 +322,13 @@ export const WidgetAgenda = () => {
                       <div className="widget-acontecimento-nome">
                         {isFerias ? (
                           <>
-                            <Palmtree size={12} style={{ display: 'inline', marginRight: 4, color: '#ea580c' }} />
-                            {evento.colaborador?.nome || 'Colaborador'} (Férias)
+                            <Palmtree size={12} style={{ display: 'inline', marginRight: 4, color: info.cor }} />
+                            {evento.colaborador?.nome || 'Funcionário'} (Férias)
                           </>
                         ) : temColaborador ? (
                           <>
-                            <UserX size={12} style={{ display: 'inline', marginRight: 4, color: tipoInfo?.cor_hex || '#ef4444' }} />
-                            {evento.colaborador?.nome} {tipoInfo && tipoInfo.chave !== 'folga' ? `(${tipoInfo.nome})` : '(Folga)'}
+                            <UserX size={12} style={{ display: 'inline', marginRight: 4, color: info.cor }} />
+                            {evento.colaborador?.nome} {info.chave !== 'folga' ? `(${info.nome})` : '(Folga)'}
                           </>
                         ) : (
                           evento.titulo
@@ -316,7 +339,7 @@ export const WidgetAgenda = () => {
                           ? `Período: ${evento.titulo}`
                           : temColaborador
                           ? `Motivo: ${evento.titulo}`
-                          : (tipoInfo?.nome || 'Compromisso da equipe')}
+                          : info.nome}
                       </div>
                     </div>
                   </div>
@@ -356,14 +379,16 @@ export const WidgetAgenda = () => {
                   {nomesDosMeses[mesNavegacao]} {anoNavegacao}
                 </span>
                 <div className="widget-mes-botoes">
-                  <button
-                    type="button"
-                    className="btn-hoje-mini"
-                    onClick={voltarParaHoje}
-                    title="Ir para o mês atual"
-                  >
-                    Mês Atual
-                  </button>
+                  {!ehMesAtual && (
+                    <button
+                      type="button"
+                      className="btn-hoje-mini"
+                      onClick={voltarParaHoje}
+                      title="Ir para o mês atual"
+                    >
+                      Mês Atual
+                    </button>
+                  )}
                   <button
                     type="button"
                     className="btn-nav-mini"
@@ -401,22 +426,45 @@ export const WidgetAgenda = () => {
                   const feriasDesteDia = eventosDesteDia.filter((e) => ehEventoFerias(e));
                   const ausenciasDesteDia = eventosDesteDia.filter((e) => {
                     if (ehEventoFerias(e)) return false;
-                    const info = obterTipoPorChave(e.tipo);
-                    if (info) return Boolean(info.computa_ausencia);
-                    return e.tipo === 'folga';
+                    const info = resolverInformacoesTipo(e.tipo, e);
+                    return info.computaAusencia;
                   });
                   const totalAusenciasDesteDia = ausenciasDesteDia.length + feriasDesteDia.length;
-                  const temFolga = ausenciasDesteDia.length > 0;
                   const temFerias = feriasDesteDia.length > 0;
+                  const temFolga = ausenciasDesteDia.length > 0;
                   const temEvento = eventosDesteDia.some((e) => {
                     if (ehEventoFerias(e)) return false;
-                    const info = obterTipoPorChave(e.tipo);
-                    if (info) return !info.computa_ausencia;
-                    return e.tipo !== 'folga';
+                    const info = resolverInformacoesTipo(e.tipo, e);
+                    return !info.computaAusencia;
                   });
                   const ehDiaAtual = diaIso === hojeFormatado;
                   const ehDiaSelecionado = diaIso === diaSelecionadoFormatado;
                   const ehDomingo = dia.getDay() === 0;
+
+                  // PRIORIDADE ABSOLUTA: Se há férias no dia, a cor das férias se sobrepõe
+                  let estiloDia = undefined;
+                  if (temFerias) {
+                    estiloDia = {
+                      backgroundColor: '#ffedd5',
+                      color: '#9a3412',
+                      border: '1px solid #fed7aa',
+                      fontWeight: 700,
+                    };
+                  } else if (temFolga) {
+                    estiloDia = {
+                      backgroundColor: '#fee2e2',
+                      color: '#991b1b',
+                      border: '1px solid #fca5a5',
+                      fontWeight: 700,
+                    };
+                  } else if (temEvento) {
+                    estiloDia = {
+                      backgroundColor: '#e0f2fe',
+                      color: '#0369a1',
+                      border: '1px solid #bae6fd',
+                      fontWeight: 600,
+                    };
+                  }
 
                   return (
                     <div
@@ -426,6 +474,7 @@ export const WidgetAgenda = () => {
                       } ${ehDiaAtual ? 'hoje' : ''} ${
                         ehDiaSelecionado ? 'selecionado' : ''
                       } ${ehDomingo ? 'domingo' : ''}`}
+                      style={estiloDia}
                       onClick={() => setDiaSelecionado(dia)}
                       title={
                         temFerias
@@ -445,6 +494,7 @@ export const WidgetAgenda = () => {
                       {totalAusenciasDesteDia > 1 && (
                         <span
                           className={`widget-indicador-multi-folgas ${temFerias ? 'com-ferias' : ''}`}
+                          style={temFerias ? { backgroundColor: '#ea580c', borderColor: '#ffedd5' } : undefined}
                           title={`${totalAusenciasDesteDia} pessoas ausentes (folgas/férias) neste dia`}
                         >
                           {totalAusenciasDesteDia}
@@ -464,15 +514,16 @@ export const WidgetAgenda = () => {
                 </div>
               ) : (
                 proximosEventos.map((evento) => {
-                  const isFerias = ehEventoFerias(evento);
-                  const tipoInfo = obterTipoPorChave(evento.tipo);
+                  const info = resolverInformacoesTipo(evento.tipo, evento);
+                  const isFerias = info.isFerias;
                   const temColaborador = Boolean(evento.colaborador?.nome);
-                  const classeTipo = isFerias ? 'ferias' : (tipoInfo?.chave || evento.tipo);
+                  const classeTipo = isFerias ? 'ferias' : info.chave;
                   const ehEventoHoje = evento.data === hojeFormatado;
 
-                  const estiloProximo = tipoInfo?.cor_hex ? {
-                    borderLeft: `3px solid ${tipoInfo.cor_hex}`
-                  } : undefined;
+                  const estiloProximo = {
+                    borderLeft: `3px solid ${info.cor}`,
+                    backgroundColor: hexParaRgba(info.cor, 0.08),
+                  };
 
                   return (
                     <div
@@ -495,13 +546,13 @@ export const WidgetAgenda = () => {
                         <div className="widget-proximo-titulo">
                           {isFerias ? (
                             <>
-                              <Palmtree size={12} style={{ display: 'inline', marginRight: 4, color: '#ea580c' }} />
-                              {evento.colaborador?.nome || 'Colaborador'} (Férias)
+                              <Palmtree size={12} style={{ display: 'inline', marginRight: 4, color: info.cor }} />
+                              {evento.colaborador?.nome || 'Funcionário'} (Férias)
                             </>
                           ) : temColaborador ? (
                             <>
-                              <UserX size={12} style={{ display: 'inline', marginRight: 4, color: tipoInfo?.cor_hex || '#ef4444' }} />
-                              {evento.colaborador?.nome} {tipoInfo && tipoInfo.chave !== 'folga' ? `(${tipoInfo.nome})` : ''}
+                              <UserX size={12} style={{ display: 'inline', marginRight: 4, color: info.cor }} />
+                              {evento.colaborador?.nome} {info.chave !== 'folga' ? `(${info.nome})` : ''}
                             </>
                           ) : (
                             evento.titulo
@@ -512,7 +563,7 @@ export const WidgetAgenda = () => {
                             ? `Férias: ${evento.titulo}`
                             : temColaborador
                             ? `Motivo: ${evento.titulo}`
-                            : (tipoInfo?.nome || 'Compromisso da equipe')}
+                            : info.nome}
                         </div>
                       </div>
                     </div>
