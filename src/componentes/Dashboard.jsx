@@ -53,6 +53,16 @@ export const Dashboard = () => {
   const hojeStr = useMemo(() => formatarData(dataHoje), [dataHoje]);
   const anoAtualStr = useMemo(() => String(dataHoje.getFullYear()), [dataHoje]);
   const mesAtualStr = useMemo(() => String(dataHoje.getMonth() + 1).padStart(2, '0'), [dataHoje]);
+  const prefixoMesAtual = useMemo(() => `${anoAtualStr}-${mesAtualStr}`, [anoAtualStr, mesAtualStr]);
+  const nomeMesAtual = useMemo(() => {
+    const nome = nomesDosMeses[dataHoje.getMonth()];
+    return nome.charAt(0).toUpperCase() + nome.slice(1);
+  }, [dataHoje]);
+
+  // Eventos filtrados para o mês vigente
+  const eventosDoMesVigente = useMemo(() => {
+    return eventos.filter((e) => e.data && e.data.startsWith(prefixoMesAtual));
+  }, [eventos, prefixoMesAtual]);
 
   const daqui15DiasStr = useMemo(() => {
     const dataAlvo = new Date(dataHoje);
@@ -104,20 +114,16 @@ export const Dashboard = () => {
       .sort((a, b) => a.data.localeCompare(b.data));
   }, [eventos, hojeStr, daqui15DiasStr]);
 
-  // Contagem do mês
+  // Contagem de folgas de escala no mês vigente (excluindo férias)
   const folgasEsteMes = useMemo(() => {
-    return eventos.filter((e) => {
-      const anoEvento = e.data?.substring(0, 4);
-      const mesEvento = e.data?.substring(5, 7);
-      return (
-        verificarSeComputaAusencia(e) &&
-        anoEvento === anoAtualStr &&
-        mesEvento === mesAtualStr
-      );
+    return eventosDoMesVigente.filter((e) => {
+      if (ehEventoFerias(e)) return false;
+      const info = resolverInformacoesTipo(e.tipo, e);
+      return info.chave === 'folga';
     }).length;
-  }, [eventos, anoAtualStr, mesAtualStr, verificarSeComputaAusencia]);
+  }, [eventosDoMesVigente, resolverInformacoesTipo]);
 
-  // Ranking de ausências por colaborador no ano
+  // Ranking de ausências por colaborador no mês vigente
   const rankingFolgas = useMemo(() => {
     return colaboradores
       .map((colaborador) => {
@@ -125,13 +131,13 @@ export const Dashboard = () => {
           (e) =>
             verificarSeComputaAusencia(e) &&
             e.colaborador_id === colaborador.id &&
-            e.data?.startsWith(anoAtualStr)
+            e.data?.startsWith(prefixoMesAtual)
         ).length;
         return { ...colaborador, totalFolgas };
       })
       .filter((c) => c.totalFolgas > 0)
       .sort((a, b) => b.totalFolgas - a.totalFolgas);
-  }, [colaboradores, eventos, verificarSeComputaAusencia, anoAtualStr]);
+  }, [colaboradores, eventos, verificarSeComputaAusencia, prefixoMesAtual]);
 
   const maxFolgasRanking = rankingFolgas.length > 0 ? rankingFolgas[0].totalFolgas : 1;
 
@@ -141,16 +147,16 @@ export const Dashboard = () => {
     ? Math.max(0, Math.round(((totalColaboradores - ausenciasHoje.length) / totalColaboradores) * 100))
     : 100;
 
-  // Dados para o Gráfico Donut (100% Cores e Nomes Cadastrados no Banco)
+  // Dados para o Gráfico Donut (100% Mês Vigente com Cores e Nomes Cadastrados no Banco)
   const dadosDonut = useMemo(() => {
     const contagemPorTipo = {};
 
-    eventos.forEach((e) => {
+    eventosDoMesVigente.forEach((e) => {
       const info = resolverInformacoesTipo(e.tipo, e);
       contagemPorTipo[info.chave] = (contagemPorTipo[info.chave] || 0) + 1;
     });
 
-    const total = eventos.length;
+    const total = eventosDoMesVigente.length;
     if (total === 0) return { itens: [], segmentos: [], total: 0 };
 
     const itens = Object.entries(contagemPorTipo)
@@ -187,7 +193,7 @@ export const Dashboard = () => {
     });
 
     return { itens, segmentos, total };
-  }, [eventos, resolverInformacoesTipo]);
+  }, [eventosDoMesVigente, resolverInformacoesTipo]);
 
   // Dados para o Gráfico de Barras (Últimos 6 Meses)
   const dadosBarrasMeses = useMemo(() => {
@@ -355,37 +361,37 @@ export const Dashboard = () => {
               </div>
             </article>
 
-            {/* Card 2: Atividades Hoje */}
+            {/* Card 2: Atividades no Mês */}
             <article className="dashboard-kpi-card">
               <div className="kpi-topo">
-                <span className="kpi-rotulo">Atividades Hoje</span>
+                <span className="kpi-rotulo">Atividades no Mês</span>
                 <div className="kpi-icone-box indigo">
                   <CalendarDays size={20} />
                 </div>
               </div>
               <div className="kpi-valor-bloco">
-                <span className="kpi-valor">{eventosDeHoje.length}</span>
+                <span className="kpi-valor">{eventosDoMesVigente.length}</span>
                 <span className="kpi-unidade">registros</span>
               </div>
               <div className="kpi-rodape-info">
-                <span>Eventos agendados para a data atual</span>
+                <span>Total de agendamentos em {nomeMesAtual}</span>
               </div>
             </article>
 
-            {/* Card 3: Ausências no Mês */}
+            {/* Card 3: Folgas no Mês */}
             <article className="dashboard-kpi-card">
               <div className="kpi-topo">
-                <span className="kpi-rotulo">Ausências no Mês</span>
+                <span className="kpi-rotulo">Folgas no Mês</span>
                 <div className="kpi-icone-box vermelho">
                   <Coffee size={20} />
                 </div>
               </div>
               <div className="kpi-valor-bloco">
                 <span className="kpi-valor">{folgasEsteMes}</span>
-                <span className="kpi-unidade">dias</span>
+                <span className="kpi-unidade">{folgasEsteMes === 1 ? 'dia' : 'dias'}</span>
               </div>
               <div className="kpi-rodape-info">
-                <span>Folgas e períodos de férias computados</span>
+                <span>Folgas de escala em {nomeMesAtual}</span>
               </div>
             </article>
 
@@ -411,7 +417,7 @@ export const Dashboard = () => {
           {/* 3. GRÁFICOS ANALÍTICOS (DONUT + BARRAS NATIVOS EM SVG)               */}
           {/* ==================================================================== */}
           <section className="dashboard-graficos-grid" aria-label="Gráficos Analíticos">
-            {/* Gráfico 1: Distribuição por Tipo de Registro (Donut com Cores Oficiais) */}
+            {/* Gráfico 1: Distribuição por Tipo de Registro (Donut com Cores Oficiais do Mês) */}
             <article className="card-grafico-dashboard">
               <div className="grafico-cabecalho">
                 <div className="grafico-titulo-grupo">
@@ -420,7 +426,7 @@ export const Dashboard = () => {
                   </div>
                   <div>
                     <h3 className="grafico-titulo">Distribuição por Categoria</h3>
-                    <p className="grafico-subtitulo">Cores oficiais dos tipos de registro do sistema</p>
+                    <p className="grafico-subtitulo">Escala de {nomeMesAtual} de {anoAtualStr}</p>
                   </div>
                 </div>
               </div>
@@ -428,7 +434,7 @@ export const Dashboard = () => {
               {dadosDonut.total === 0 ? (
                 <div className="dashboard-vazio-box">
                   <Inbox size={32} />
-                  <p>Nenhum registro encontrado para gerar a distribuição.</p>
+                  <p>Nenhum registro encontrado para {nomeMesAtual}.</p>
                 </div>
               ) : (
                 <div className="donut-layout-container">
@@ -633,22 +639,22 @@ export const Dashboard = () => {
               )}
             </article>
 
-            {/* Coluna 2: Monitoramento & Ranking de Folgas Anual (100% Sólido) */}
+            {/* Coluna 2: Monitoramento & Ranking de Folgas do Mês Vigente (100% Sólido) */}
             <article className="card-operacional">
               <div className="card-operacional-cabecalho">
                 <div className="card-operacional-titulo-box">
                   <Award size={18} style={{ color: '#0f172a' }} />
-                  <h3 className="card-operacional-titulo">Monitoramento de Escalas ({anoAtualStr})</h3>
+                  <h3 className="card-operacional-titulo">Monitoramento de Escalas ({nomeMesAtual})</h3>
                 </div>
                 <span className="card-operacional-badge-qtd">
-                  {rankingFolgas.length} colaboradores
+                  {rankingFolgas.length} {rankingFolgas.length === 1 ? 'funcionário' : 'funcionários'}
                 </span>
               </div>
 
               {rankingFolgas.length === 0 ? (
                 <div className="dashboard-vazio-box">
                   <Inbox size={32} />
-                  <p>Nenhuma folga ou ausência registrada neste ano.</p>
+                  <p>Nenhuma folga ou ausência registrada em {nomeMesAtual}.</p>
                 </div>
               ) : (
                 <div className="ranking-folgas-lista">
