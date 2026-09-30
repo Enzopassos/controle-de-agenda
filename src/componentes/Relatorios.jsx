@@ -79,7 +79,8 @@ export const Relatorios = () => {
         }
 
         if (filtroColaborador !== 'todos') {
-          passaColab = registro.colaborador_id === filtroColaborador;
+          const idColabRegistro = registro.colaborador_id ?? registro.colaborador?.id;
+          passaColab = String(idColabRegistro ?? '') === String(filtroColaborador);
         }
 
         if (filtroTipo !== 'todos') {
@@ -118,7 +119,7 @@ export const Relatorios = () => {
   ).length;
   const totalFerias = registrosFiltrados.filter(ehEventoFerias).length;
   const totalFuncionariosImpactados = new Set(
-    registrosFiltrados.map((r) => r.colaborador_id).filter(Boolean)
+    registrosFiltrados.map((r) => r.colaborador_id ?? r.colaborador?.id).filter(Boolean)
   ).size;
 
   // Exportar dados filtrados para CSV com compatibilidade para Excel

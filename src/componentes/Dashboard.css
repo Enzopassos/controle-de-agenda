@@ -31,7 +31,6 @@
    -------------------------------------------------------------------------- */
 .dashboard-banner-saudacao {
   background-color: #0f172a;
-  border-left: 4px solid var(--cor-marca, #dc2626);
   border-radius: 14px;
   padding: 1.75rem 2rem;
   color: #ffffff;

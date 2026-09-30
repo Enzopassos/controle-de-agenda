@@ -90,8 +90,11 @@ export const Calendario = () => {
   // Aplicação dos filtros em tempo real
   const eventosFiltrados = useMemo(() => {
     return eventos.filter((e) => {
-      if (filtroColaboradorId && e.colaborador_id !== filtroColaboradorId) {
-        return false;
+      if (filtroColaboradorId) {
+        const idColaboradorEvento = e.colaborador_id ?? e.colaborador?.id;
+        if (String(idColaboradorEvento ?? '') !== String(filtroColaboradorId)) {
+          return false;
+        }
       }
       if (filtroTipoChave) {
         const info = resolverInformacoesTipo(e.tipo, e);
@@ -109,7 +112,7 @@ export const Calendario = () => {
     const prefixoMes = `${ano}-${mesStr}`;
     const contagem = {};
 
-    eventos.forEach((e) => {
+    eventosFiltrados.forEach((e) => {
       if (e.data && e.data.startsWith(prefixoMes)) {
         const info = resolverInformacoesTipo(e.tipo, e);
         contagem[info.chave] = (contagem[info.chave] || 0) + 1;
@@ -117,7 +120,7 @@ export const Calendario = () => {
     });
 
     return contagem;
-  }, [eventos, ano, mes, resolverInformacoesTipo]);
+  }, [eventosFiltrados, ano, mes, resolverInformacoesTipo]);
 
   const obterEventosDoDia = (dia) => {
     if (!dia) return [];

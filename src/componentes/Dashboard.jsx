@@ -15,6 +15,7 @@ import {
 import { useEventos } from '../hooks/useEventos';
 import { useColaboradores } from '../hooks/useColaboradores';
 import { useTiposRegistro } from '../hooks/useTiposRegistro';
+import { useAutenticacao } from '../hooks/useAutenticacao';
 import { formatarData, nomesDosMeses } from '../utils/dataUtils';
 import { hexParaRgba } from '../utils/corUtils';
 import { CabecalhoPagina } from './CabecalhoPagina';
@@ -44,9 +45,15 @@ const obterIniciais = (nome) => {
 };
 
 export const Dashboard = () => {
+  const { usuario } = useAutenticacao();
   const { eventos, carregando: carregandoEventos } = useEventos();
   const { colaboradores, carregando: carregandoColab } = useColaboradores();
   const { obterTipoPorChave } = useTiposRegistro();
+
+  const nomeUsuario = useMemo(() => {
+    if (!usuario?.email) return 'Usuário';
+    return usuario.email.split('@')[0];
+  }, [usuario]);
 
   const dataHoje = useMemo(() => new Date(), []);
   const hojeStr = useMemo(() => formatarData(dataHoje), [dataHoje]);
@@ -130,13 +137,13 @@ export const Dashboard = () => {
         const totalFolgas = eventosDoMesVigente.filter(
           (e) =>
             !ehEventoFerias(e) &&
-            e.colaborador_id === colaborador.id &&
+            String(e.colaborador_id ?? e.colaborador?.id ?? '') === String(colaborador.id) &&
             resolverInformacoesTipo(e.tipo, e).chave === 'folga'
         ).length;
 
         // Indicativo se o funcionário possui período de férias no mês
         const temFeriasMes = eventosDoMesVigente.some(
-          (e) => ehEventoFerias(e) && e.colaborador_id === colaborador.id
+          (e) => ehEventoFerias(e) && String(e.colaborador_id ?? e.colaborador?.id ?? '') === String(colaborador.id)
         );
 
         return {
@@ -297,7 +304,7 @@ export const Dashboard = () => {
               <div className="banner-titulos">
                 <span className="banner-data-hoje">{formatarDataPorExtenso(dataHoje)}</span>
                 <h2 className="banner-saudacao-texto">
-                  {obterSaudacao()}, Gestor(a)!
+                  {obterSaudacao()}, {nomeUsuario}!
                 </h2>
                 <p className="banner-subtexto">
                   {ausenciasHoje.length === 0

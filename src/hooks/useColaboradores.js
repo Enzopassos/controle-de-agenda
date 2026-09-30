@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { colaboradorServico } from '../servicos/colaboradorServico';
+import { supabase } from '../servicos/supabaseClient';
 
 const CACHE_KEY = 'agenda_colaboradores_cache';
 
@@ -40,6 +41,23 @@ export const useColaboradores = () => {
 
   useEffect(() => {
     carregar();
+
+    // Sincronização em tempo real (Supabase Realtime) com canal único por instância
+    const idCanal = `agenda_colaboradores_${Math.random().toString(36).slice(2, 9)}`;
+    const canal = supabase
+      .channel(idCanal)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'agenda_colaboradores' },
+        () => {
+          carregar();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(canal);
+    };
   }, [carregar]);
 
   const adicionar = async (dados) => {

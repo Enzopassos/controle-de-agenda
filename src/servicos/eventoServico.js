@@ -7,7 +7,7 @@ export const eventoServico = {
       .from('agenda_eventos')
       .select(`
         *,
-        colaborador:agenda_colaboradores(nome)
+        colaborador:agenda_colaboradores(id, nome, cargo)
       `);
     
     if (error) throw error;
