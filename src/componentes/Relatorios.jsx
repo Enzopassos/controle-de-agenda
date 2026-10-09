@@ -9,6 +9,7 @@ import {
   Printer,
   X,
   Clock,
+  Paperclip,
 } from 'lucide-react';
 import { useEventos } from '../hooks/useEventos';
 import { useColaboradores } from '../hooks/useColaboradores';
@@ -411,6 +412,7 @@ export const Relatorios = () => {
                   <th>Tipo de Registro</th>
                   <th>Motivo / Observação</th>
                   <th>Status</th>
+                  <th>Anexo</th>
                 </tr>
               </thead>
               <tbody>
@@ -500,6 +502,37 @@ export const Relatorios = () => {
                         >
                           {status}
                         </span>
+                      </td>
+
+                      {/* Anexo / Comprovante */}
+                      <td>
+                        {registro.anexo_url ? (
+                          <a
+                            href={registro.anexo_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-ver-anexo-relatorio"
+                            title="Visualizar atestado ou comprovante anexado"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '0.25rem 0.55rem',
+                              borderRadius: '6px',
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              backgroundColor: '#eff6ff',
+                              color: '#2563eb',
+                              border: '1px solid #bfdbfe',
+                              textDecoration: 'none',
+                            }}
+                          >
+                            <Paperclip size={13} />
+                            <span>Ver</span>
+                          </a>
+                        ) : (
+                          <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>—</span>
+                        )}
                       </td>
                     </tr>
                   );

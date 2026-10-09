@@ -5,6 +5,7 @@ import {
   CalendarDays,
   Palmtree,
   Users,
+  Paperclip,
 } from 'lucide-react';
 import { obterDiasDoMes, formatarData, nomesDosMeses, diasDaSemana } from '../utils/dataUtils';
 import { useEventos } from '../hooks/useEventos';
@@ -13,6 +14,7 @@ import { useColaboradores } from '../hooks/useColaboradores';
 import { hexParaRgba } from '../utils/corUtils';
 import { ModalDeEvento } from './ModalDeEvento';
 import { ModalDeFerias } from './ModalDeFerias';
+import { ModalDetalhesEvento } from './ModalDetalhesEvento';
 import { ModalConfirmacaoExclusao } from './ModalConfirmacaoExclusao';
 import { CabecalhoPagina } from './CabecalhoPagina';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -44,6 +46,7 @@ export const Calendario = () => {
   const [modalFeriasAberto, setModalFeriasAberto] = useState(false);
   const [anoSelecionadoModal, setAnoSelecionadoModal] = useState(new Date().getFullYear());
   const [eventoParaExcluir, setEventoParaExcluir] = useState(null);
+  const [eventoSelecionadoDetalhes, setEventoSelecionadoDetalhes] = useState(null);
 
   const { eventos, adicionarEvento, adicionarVariosEventos, removerEvento } = useEventos();
   const { tipos, obterTipoPorChave } = useTiposRegistro();
@@ -136,7 +139,7 @@ export const Calendario = () => {
   const lidarComConfirmacaoExclusaoEvento = async () => {
     if (!eventoParaExcluir) return;
     try {
-      await removerEvento(eventoParaExcluir.id);
+      await removerEvento(eventoParaExcluir.id, eventoParaExcluir.anexo_url);
     } catch (erro) {
       console.error('Erro ao remover agendamento do calendário:', erro);
     } finally {
@@ -352,10 +355,23 @@ export const Calendario = () => {
                           borderTop: `1px solid ${hexParaRgba(info.cor, 0.25)}`,
                           borderBottom: `1px solid ${hexParaRgba(info.cor, 0.25)}`,
                         }}
-                        title={`${info.nome}: ${evento.titulo}`}
+                        title={`${info.nome}: ${evento.titulo}${evento.anexo_url ? ' (Possui anexo)' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEventoSelecionadoDetalhes(evento);
+                        }}
                       >
                         <div className="badge-evento-conteudo">
-                          <span className="badge-evento-colab">{nomeExibicao}</span>
+                          <span className="badge-evento-colab">
+                            {evento.anexo_url && (
+                              <Paperclip
+                                size={12}
+                                className="badge-evento-icone-anexo"
+                                title="Comprovante anexado"
+                              />
+                            )}
+                            {nomeExibicao}
+                          </span>
                           <span className="badge-evento-titulo">
                             {temColaborador && info.chave !== 'folga'
                               ? `[${info.nome}] ${evento.titulo}`
@@ -464,6 +480,16 @@ export const Calendario = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de Detalhes da Ocorrência (ao clicar no agendamento) */}
+      {eventoSelecionadoDetalhes && (
+        <ModalDetalhesEvento
+          evento={eventoSelecionadoDetalhes}
+          aoFechar={() => setEventoSelecionadoDetalhes(null)}
+          aoSolicitarExclusao={(evento) => setEventoParaExcluir(evento)}
+          resolverInformacoesTipo={resolverInformacoesTipo}
+        />
       )}
 
       {/* Modal de Confirmação de Exclusão de Evento */}

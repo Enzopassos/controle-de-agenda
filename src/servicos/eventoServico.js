@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { storageServico } from './storageServico';
 
 export const eventoServico = {
   obterTodos: async () => {
@@ -36,8 +37,26 @@ export const eventoServico = {
     return data;
   },
 
+  remover: async (id, anexoUrl = null) => {
+    // Se o anexo_url já foi passado, limpa direto; senão, consulta antes de excluir
+    try {
+      if (anexoUrl) {
+        await storageServico.removerAnexo(anexoUrl);
+      } else {
+        const { data: eventoExistente } = await supabase
+          .from('agenda_eventos')
+          .select('anexo_url')
+          .eq('id', id)
+          .maybeSingle();
 
-  remover: async (id) => {
+        if (eventoExistente?.anexo_url) {
+          await storageServico.removerAnexo(eventoExistente.anexo_url);
+        }
+      }
+    } catch (erroStorage) {
+      console.warn('Aviso: Falha ao limpar anexo do Storage ao excluir evento:', erroStorage);
+    }
+
     const { error } = await supabase
       .from('agenda_eventos')
       .delete()
@@ -47,3 +66,4 @@ export const eventoServico = {
     return true;
   }
 };
+

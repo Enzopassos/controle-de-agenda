@@ -71,9 +71,9 @@ export const useEventos = () => {
     }
   };
 
-  const removerEvento = async (id) => {
+  const removerEvento = async (id, anexoUrl = null) => {
     try {
-      await eventoServico.remover(id);
+      await eventoServico.remover(id, anexoUrl);
       await carregarEventos();
     } catch (erro) {
       console.error('Erro ao remover evento', erro);

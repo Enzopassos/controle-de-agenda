@@ -11,6 +11,7 @@ import {
   Inbox,
   CheckCircle2,
   CalendarCheck,
+  Paperclip,
 } from 'lucide-react';
 import { useEventos } from '../hooks/useEventos';
 import { useColaboradores } from '../hooks/useColaboradores';
@@ -639,7 +640,26 @@ export const Dashboard = () => {
 
                         {/* Informações */}
                         <div className="timeline-info-bloco">
-                          <span className="timeline-nome-colab">{nomeColaborador}</span>
+                          <span className="timeline-nome-colab">
+                            {evento.anexo_url && (
+                              <a
+                                href={evento.anexo_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Ver comprovante anexo"
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  marginRight: '5px',
+                                  color: '#2563eb',
+                                  verticalAlign: 'middle',
+                                }}
+                              >
+                                <Paperclip size={13} />
+                              </a>
+                            )}
+                            {nomeColaborador}
+                          </span>
                           <span className="timeline-descricao-evento">
                             {evento.titulo}
                           </span>

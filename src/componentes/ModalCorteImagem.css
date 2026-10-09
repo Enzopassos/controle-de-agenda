@@ -1,0 +1,367 @@
+.modal-corte-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10050;
+  padding: 1rem;
+  animation: fadeInCorte 0.2s ease-out;
+}
+
+@keyframes fadeInCorte {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-corte-container {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 720px;
+  max-height: 94vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  border: 1px solid #e2e8f0;
+}
+
+.modal-corte-cabecalho {
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f8fafc;
+}
+
+.modal-corte-titulo-bloco {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.modal-corte-icone {
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+}
+
+.modal-corte-titulo {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.modal-corte-subtitulo {
+  margin: 0.15rem 0 0 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.modal-corte-btn-fechar {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.modal-corte-btn-fechar:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Palco onde a imagem é exibida */
+.modal-corte-palco {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  background-color: #090d16;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
+  background-size: 16px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Container exato das dimensões da imagem */
+.modal-corte-imagem-container {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+}
+
+.modal-corte-img-fundo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Linha de Corte / Caixa de Seleção sobre a Imagem */
+.modal-corte-caixa-selecao {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid #2563eb;
+  /* Sombra gigante para criar a máscara escura fora do retângulo de corte */
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.65);
+  cursor: move;
+  touch-action: none;
+}
+
+/* Linhas guias internas (Regra dos terços) */
+.modal-corte-grade-guias {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.modal-corte-guia-h1,
+.modal-corte-guia-h2 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+.modal-corte-guia-h1 {
+  top: 33.333%;
+}
+
+.modal-corte-guia-h2 {
+  top: 66.666%;
+}
+
+.modal-corte-guia-v1,
+.modal-corte-guia-v2 {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+.modal-corte-guia-v1 {
+  left: 33.333%;
+}
+
+.modal-corte-guia-v2 {
+  left: 66.666%;
+}
+
+/* Alças de Redimensionamento (Handles) */
+.alca-corte {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #ffffff;
+  border: 2px solid #2563eb;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+  touch-action: none;
+  z-index: 10;
+}
+
+/* Cantos */
+.alca-corte.canto-nw {
+  top: -5px;
+  left: -5px;
+  cursor: nwse-resize;
+}
+
+.alca-corte.canto-ne {
+  top: -5px;
+  right: -5px;
+  cursor: nesw-resize;
+}
+
+.alca-corte.canto-sw {
+  bottom: -5px;
+  left: -5px;
+  cursor: nesw-resize;
+}
+
+.alca-corte.canto-se {
+  bottom: -5px;
+  right: -5px;
+  cursor: nwse-resize;
+}
+
+/* Bordas */
+.alca-corte.borda-n {
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.alca-corte.borda-s {
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.alca-corte.borda-w {
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.alca-corte.borda-e {
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+/* Ferramentas e Opções */
+.modal-corte-ferramentas {
+  padding: 0.95rem 1.5rem;
+  background-color: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.modal-corte-proporcoes {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.modal-corte-rotulo-proporcao {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  margin-right: 0.25rem;
+}
+
+.modal-corte-btn-proporcao {
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 0.32rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modal-corte-btn-proporcao:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.modal-corte-btn-proporcao.ativo {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.modal-corte-botoes-acoes-topo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-corte-btn-auxiliar {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+}
+
+.modal-corte-btn-auxiliar:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Rodapé de Ações */
+.modal-corte-rodape {
+  padding: 0.95rem 1.5rem;
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.modal-corte-btn-cancelar {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 0.55rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modal-corte-btn-cancelar:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+.modal-corte-btn-concluir {
+  background-color: #2563eb;
+  border: 1px solid #2563eb;
+  color: #ffffff;
+  padding: 0.55rem 1.4rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.modal-corte-btn-concluir:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.modal-corte-btn-concluir:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

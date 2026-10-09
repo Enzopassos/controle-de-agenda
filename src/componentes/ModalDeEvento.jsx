@@ -4,11 +4,17 @@ import { formatarData } from '../utils/dataUtils';
 import { useColaboradores } from '../hooks/useColaboradores';
 import { useTiposRegistro } from '../hooks/useTiposRegistro';
 import { TIPOS_PADRAO_FALLBACK } from '../utils/corUtils';
+import { SeletorAnexo } from './SeletorAnexo';
+import { storageServico } from '../servicos/storageServico';
+import { RotateCw, AlertCircle } from 'lucide-react';
 
 export const ModalDeEvento = ({ data, aoFechar, aoSalvar }) => {
   const [titulo, setTitulo] = useState('');
   const [tipoSelecionado, setTipoSelecionado] = useState('folga');
   const [colaboradorId, setColaboradorId] = useState('');
+  const [anexo, setAnexo] = useState(null);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState(null);
   
   const { colaboradores, carregando: carregandoColaboradores } = useColaboradores();
   const { tipos, obterTipoPorChave, carregando: carregandoTipos } = useTiposRegistro();
@@ -27,18 +33,44 @@ export const ModalDeEvento = ({ data, aoFechar, aoSalvar }) => {
     ? Boolean(tipoSelecionadoObj.exige_colaborador)
     : (tipo === 'folga' || tipo === 'ferias');
 
-  const lidarComEnvio = (e) => {
+  const lidarComEnvio = async (e) => {
     e.preventDefault();
     if (!titulo.trim()) return;
     if (exigeColaborador && !colaboradorId) return;
 
-    aoSalvar({
-      data: formatarData(data),
-      titulo: titulo.trim(),
-      tipo,
-      colaborador_id: exigeColaborador ? colaboradorId : null
-    });
-    aoFechar();
+    setSalvando(true);
+    setErro(null);
+
+    try {
+      let anexoUrl = null;
+      let anexoNome = null;
+
+      // Se houver arquivo anexo selecionado e recortado, faz upload para o Supabase Storage
+      if (anexo?.blob) {
+        const resultadoUpload = await storageServico.fazerUploadAnexo(
+          anexo.blob,
+          anexo.nome || 'comprovante.webp'
+        );
+        anexoUrl = resultadoUpload.url;
+        anexoNome = resultadoUpload.nome;
+      }
+
+      await aoSalvar({
+        data: formatarData(data),
+        titulo: titulo.trim(),
+        tipo,
+        colaborador_id: exigeColaborador ? colaboradorId : null,
+        anexo_url: anexoUrl,
+        anexo_nome: anexoNome,
+      });
+
+      aoFechar();
+    } catch (err) {
+      console.error('Erro ao agendar ocorrência:', err);
+      setErro('Ocorreu um erro ao salvar o agendamento: ' + (err.message || 'Erro desconhecido.'));
+    } finally {
+      setSalvando(false);
+    }
   };
 
   // Garante que a data seja tratada com segurança
@@ -65,7 +97,7 @@ export const ModalDeEvento = ({ data, aoFechar, aoSalvar }) => {
       return 'Ex: Reunião Geral, Treinamento Interno...';
     }
     if (tipo === 'ferias') return 'Ex: Férias regulares...';
-    return 'Ex: Folga semanal, Banco de horas, Atestado...';
+    return 'Ex: Folga semanal, Banco de horas, Atestado médico...';
   };
 
   const conteudoModal = (
@@ -74,10 +106,34 @@ export const ModalDeEvento = ({ data, aoFechar, aoSalvar }) => {
         <h3>Agendar no Calendário</h3>
         <p className="modal-data">{dataFormatadaTexto}</p>
 
+        {erro && (
+          <div
+            style={{
+              background: '#fee2e2',
+              border: '1px solid #fca5a5',
+              color: '#991b1b',
+              padding: '0.65rem 0.85rem',
+              borderRadius: '8px',
+              fontSize: '0.82rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginBottom: '1rem',
+            }}
+          >
+            <AlertCircle size={16} />
+            <span>{erro}</span>
+          </div>
+        )}
+
         <form onSubmit={lidarComEnvio}>
           <div className="form-grupo">
             <label>Tipo de Registro</label>
-            <select value={tipo} onChange={(e) => setTipoSelecionado(e.target.value)}>
+            <select
+              value={tipo}
+              onChange={(e) => setTipoSelecionado(e.target.value)}
+              disabled={salvando}
+            >
               {listaTipos.map((itemTipo) => (
                 <option key={itemTipo.id || itemTipo.chave} value={itemTipo.chave}>
                   {itemTipo.nome}
@@ -94,6 +150,7 @@ export const ModalDeEvento = ({ data, aoFechar, aoSalvar }) => {
               onChange={(e) => setTitulo(e.target.value)}
               placeholder={obterPlaceholderTitulo()}
               required
+              disabled={salvando}
             />
           </div>
 
@@ -104,6 +161,7 @@ export const ModalDeEvento = ({ data, aoFechar, aoSalvar }) => {
                 value={colaboradorId} 
                 onChange={(e) => setColaboradorId(e.target.value)}
                 required={exigeColaborador}
+                disabled={salvando}
               >
                 <option value="">Selecione um colaborador...</option>
                 {listaColaboradores.map(c => (
@@ -113,16 +171,51 @@ export const ModalDeEvento = ({ data, aoFechar, aoSalvar }) => {
             </div>
           )}
 
+          {/* Campo de Anexo com Recorte e Otimização */}
+          <div className="form-grupo">
+            <SeletorAnexo
+              anexo={anexo}
+              aoMudar={setAnexo}
+              desabilitado={salvando}
+              rotulo={
+                tipo === 'folga'
+                  ? 'Atestado Médico / Comprovante (Opcional)'
+                  : 'Anexo / Comprovante (Opcional)'
+              }
+            />
+          </div>
+
           <div className="modal-acoes">
-            <button type="button" className="btn btn-cancelar" onClick={aoFechar}>
+            <button
+              type="button"
+              className="btn btn-cancelar"
+              onClick={aoFechar}
+              disabled={salvando}
+            >
               Cancelar
             </button>
             <button
               type="submit"
               className="btn btn-salvar"
-              disabled={(carregandoColaboradores && exigeColaborador) || carregandoTipos}
+              disabled={
+                salvando ||
+                (carregandoColaboradores && exigeColaborador) ||
+                carregandoTipos
+              }
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+              }}
             >
-              Salvar
+              {salvando ? (
+                <>
+                  <RotateCw size={15} className="icone-girando" />
+                  <span>Salvando...</span>
+                </>
+              ) : (
+                <span>Salvar</span>
+              )}
             </button>
           </div>
         </form>

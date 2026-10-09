@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { Palmtree, Calendar, User, FileText, AlertCircle, RotateCw } from 'lucide-react';
 import { useColaboradores } from '../hooks/useColaboradores';
 import { formatarData } from '../utils/dataUtils';
+import { SeletorAnexo } from './SeletorAnexo';
+import { storageServico } from '../servicos/storageServico';
 
 export const ModalDeFerias = ({ aoFechar, aoSalvar }) => {
   const { colaboradores, carregando: carregandoColaboradores } = useColaboradores();
@@ -14,6 +16,7 @@ export const ModalDeFerias = ({ aoFechar, aoSalvar }) => {
   const [dataInicio, setDataInicio] = useState(dataHojeStr);
   const [dataFim, setDataFim] = useState(dataHojeStr);
   const [observacoes, setObservacoes] = useState('');
+  const [anexo, setAnexo] = useState(null);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState(null);
 
@@ -48,33 +51,48 @@ export const ModalDeFerias = ({ aoFechar, aoSalvar }) => {
       return;
     }
 
-    // Gerar lista de todos os dias do período de férias
-    const listaDeEventos = [];
-    const inicio = new Date(dataInicio + 'T00:00:00');
-    const fim = new Date(dataFim + 'T00:00:00');
-    const atual = new Date(inicio);
-
-    const tituloFinal = observacoes.trim()
-      ? `Férias - ${observacoes.trim()}`
-      : 'Férias';
-
-    while (atual <= fim) {
-      listaDeEventos.push({
-        data: formatarData(atual),
-        titulo: tituloFinal,
-        tipo: 'ferias',
-        colaborador_id: colaboradorId,
-      });
-      atual.setDate(atual.getDate() + 1);
-    }
-
     setSalvando(true);
     try {
+      let anexoUrl = null;
+      let anexoNome = null;
+
+      // Se houver anexo, faz o upload único para o Supabase Storage
+      if (anexo?.blob) {
+        const resultadoUpload = await storageServico.fazerUploadAnexo(
+          anexo.blob,
+          anexo.nome || 'aviso_ferias.webp'
+        );
+        anexoUrl = resultadoUpload.url;
+        anexoNome = resultadoUpload.nome;
+      }
+
+      // Gerar lista de todos os dias do período de férias
+      const listaDeEventos = [];
+      const inicio = new Date(dataInicio + 'T00:00:00');
+      const fim = new Date(dataFim + 'T00:00:00');
+      const atual = new Date(inicio);
+
+      const tituloFinal = observacoes.trim()
+        ? `Férias - ${observacoes.trim()}`
+        : 'Férias';
+
+      while (atual <= fim) {
+        listaDeEventos.push({
+          data: formatarData(atual),
+          titulo: tituloFinal,
+          tipo: 'ferias',
+          colaborador_id: colaboradorId,
+          anexo_url: anexoUrl,
+          anexo_nome: anexoNome,
+        });
+        atual.setDate(atual.getDate() + 1);
+      }
+
       await aoSalvar(listaDeEventos);
       aoFechar();
     } catch (err) {
       console.error('Erro ao lançar férias:', err);
-      setErro('Ocorreu um erro ao salvar o período de férias no banco.');
+      setErro('Ocorreu um erro ao salvar o período de férias ou anexo no banco: ' + (err.message || 'Erro'));
     } finally {
       setSalvando(false);
     }
@@ -208,6 +226,17 @@ export const ModalDeFerias = ({ aoFechar, aoSalvar }) => {
               value={observacoes}
               onChange={(e) => setObservacoes(e.target.value)}
               placeholder="Ex: Período regular, 1ª parcela..."
+              disabled={salvando}
+            />
+          </div>
+
+          {/* Comprovante / Recibo de Férias Opcional */}
+          <div className="form-grupo">
+            <SeletorAnexo
+              anexo={anexo}
+              aoMudar={setAnexo}
+              desabilitado={salvando}
+              rotulo="Comprovante / Recibo de Férias (Opcional)"
             />
           </div>
 
